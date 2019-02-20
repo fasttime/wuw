@@ -28,9 +28,9 @@ task
         (
             {
                 src: 'lib/**/*.js',
-                globals: ['console', 'performance', 'require'],
-                parserOptions: { ecmaVersion: 8 },
-                rules: { 'comma-dangle': 'off' },
+                globals:
+                ['CSS2Properties', 'CSSStyleDeclaration', 'console', 'performance', 'require'],
+                parserOptions: { ecmaVersion: 7 },
             },
             {
                 src: ['*.js', 'test/**/*.js'],
