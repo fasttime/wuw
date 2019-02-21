@@ -29,7 +29,15 @@ task
             {
                 src: 'lib/**/*.js',
                 globals:
-                ['CSS2Properties', 'CSSStyleDeclaration', 'console', 'performance', 'require'],
+                [
+                    'CSS2Properties',
+                    'CSSStyleDeclaration',
+                    'MessageChannel',
+                    'console',
+                    'performance',
+                    'require',
+                    'setImmediate',
+                ],
                 parserOptions: { ecmaVersion: 7 },
             },
             {

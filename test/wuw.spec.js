@@ -1,5 +1,5 @@
 /* eslint-env browser, mocha */
-/* global assert, wuw */
+/* global assert, chai, wuw */
 
 'use strict';
 
@@ -9,6 +9,21 @@ const CHANGE_PROPERTY_STACK_TRACE_PATTERN =
 function changeProperty(obj, propertyKey, value = 'lorem ipsum')
 {
     obj[propertyKey] = value;
+}
+
+{
+    const { Assertion } = chai;
+
+    const DELTA = 10;
+
+    const timeRange =
+    (actStartTime, actEndTime, expStartTime, expEndTime) =>
+    {
+        new Assertion(actStartTime, undefined, timeRange, true).to.be.closeTo(expStartTime, DELTA);
+        new Assertion(actEndTime, undefined, timeRange, true).to.be.closeTo(expEndTime, DELTA);
+        new Assertion(actEndTime, undefined, timeRange, true).to.be.least(actStartTime);
+    };
+    assert.timeRange = timeRange;
 }
 
 describe
@@ -23,7 +38,7 @@ describe
             {
                 it
                 (
-                    'sets a property',
+                    'records a successful property set',
                     () =>
                     {
                         const wuwTarget = document.createElement('DATA');
@@ -34,21 +49,20 @@ describe
                         const expectedEndTime = performance.now();
                         const snapshot = wuw.snapshot();
                         assert.lengthOf(snapshot, 1);
-                        const [access] = snapshot;
+                        const [record] = snapshot;
                         assert.ownInclude
-                        (access, { target: wuwTarget, propertyKey: 'textContent', success: true });
-                        assert.notProperty(access, 'error');
-                        assert.closeTo(access.startTime, expectedStartTime, 8);
-                        assert.closeTo(access.endTime, expectedEndTime, 8);
-                        assert.isAtLeast(access.endTime, access.startTime);
-                        assert.match(access.stackTrace, CHANGE_PROPERTY_STACK_TRACE_PATTERN);
+                        (record, { target: wuwTarget, propertyKey: 'textContent', success: true });
+                        assert.notProperty(record, 'error');
+                        assert.timeRange
+                        (record.startTime, record.endTime, expectedStartTime, expectedEndTime);
+                        assert.match(record.stackTrace, CHANGE_PROPERTY_STACK_TRACE_PATTERN);
                         assert.equal(wuwTarget.textContent, 'lorem ipsum');
                     },
                 );
 
                 it
                 (
-                    'fails to set a read-only data property',
+                    'records a failed read-only data property set',
                     () =>
                     {
                         const wuwTarget = document.createElement('DATA');
@@ -59,26 +73,25 @@ describe
                         const expectedEndTime = performance.now();
                         const snapshot = wuw.snapshot();
                         assert.lengthOf(snapshot, 1);
-                        const [access] = snapshot;
+                        const [record] = snapshot;
                         assert.ownInclude
-                        (access, { target: wuwTarget, propertyKey: 'TEXT_NODE', success: false });
-                        assert.notProperty(access, 'error');
-                        assert.closeTo(access.startTime, expectedStartTime, 8);
-                        assert.closeTo(access.endTime, expectedEndTime, 8);
-                        assert.isAtLeast(access.endTime, access.startTime);
-                        assert.match(access.stackTrace, CHANGE_PROPERTY_STACK_TRACE_PATTERN);
+                        (record, { target: wuwTarget, propertyKey: 'TEXT_NODE', success: false });
+                        assert.notProperty(record, 'error');
+                        assert.timeRange
+                        (record.startTime, record.endTime, expectedStartTime, expectedEndTime);
+                        assert.match(record.stackTrace, CHANGE_PROPERTY_STACK_TRACE_PATTERN);
                         assert.notEqual(wuwTarget.TEXT_NODE, 'lorem ipsum');
                     },
                 );
 
                 it
                 (
-                    'fails to set a read-only accessor property',
+                    'records a failed read-only accessor property set',
                     () =>
                     {
                         const expectedError = SyntaxError('foo');
-                        const wuwTarget = // eslint-disable-next-line accessor-pairs
-                        {
+                        const wuwTarget =
+                        { // eslint-disable-line accessor-pairs
                             set foo(value)
                             {
                                 throw expectedError;
@@ -100,14 +113,13 @@ describe
                         assert.strictEqual(actualError, expectedError);
                         const snapshot = wuw.snapshot();
                         assert.lengthOf(snapshot, 1);
-                        const [access] = snapshot;
+                        const [record] = snapshot;
                         assert.ownInclude
-                        (access, { target: wuwTarget, propertyKey: 'foo', error: expectedError });
-                        assert.notProperty(access, 'success');
-                        assert.closeTo(access.startTime, expectedStartTime, 8);
-                        assert.closeTo(access.endTime, expectedEndTime, 8);
-                        assert.isAtLeast(access.endTime, access.startTime);
-                        assert.match(access.stackTrace, CHANGE_PROPERTY_STACK_TRACE_PATTERN);
+                        (record, { target: wuwTarget, propertyKey: 'foo', error: expectedError });
+                        assert.notProperty(record, 'success');
+                        assert.timeRange
+                        (record.startTime, record.endTime, expectedStartTime, expectedEndTime);
+                        assert.match(record.stackTrace, CHANGE_PROPERTY_STACK_TRACE_PATTERN);
                     },
                 );
 
@@ -151,7 +163,7 @@ describe
             {
                 it
                 (
-                    'sets a property',
+                    'records a successful property set',
                     () =>
                     {
                         const wuwTarget = document.createElement('DATA');
@@ -163,15 +175,88 @@ describe
                         const expectedEndTime = performance.now();
                         const snapshot = wuw.snapshot();
                         assert.lengthOf(snapshot, 1);
-                        const [access] = snapshot;
+                        const [record] = snapshot;
                         assert.ownInclude
-                        (access, { target: spyTarget, propertyKey: 'display', success: true });
-                        assert.notProperty(access, 'error');
-                        assert.closeTo(access.startTime, expectedStartTime, 8);
-                        assert.closeTo(access.endTime, expectedEndTime, 8);
-                        assert.isAtLeast(access.endTime, access.startTime);
-                        assert.match(access.stackTrace, CHANGE_PROPERTY_STACK_TRACE_PATTERN);
+                        (record, { target: spyTarget, propertyKey: 'display', success: true });
+                        assert.notProperty(record, 'error');
+                        assert.timeRange
+                        (record.startTime, record.endTime, expectedStartTime, expectedEndTime);
+                        assert.match(record.stackTrace, CHANGE_PROPERTY_STACK_TRACE_PATTERN);
                         assert.equal(wuwTarget.style.display, 'none');
+                    },
+                );
+
+                it
+                (
+                    'records a failed read-only data property set',
+                    () =>
+                    {
+                        const wuwTarget = document.createElement('DATA');
+                        const spyTarget = wuwTarget.style;
+                        Object.defineProperty
+                        (spyTarget, 'foo', { configurable: true, value: 'bar', writable: false });
+                        wuw.clear();
+                        wuw(wuwTarget);
+                        const expectedStartTime = performance.now();
+                        assert.throws(() => changeProperty(wuwTarget.style, 'foo'), TypeError);
+                        const expectedEndTime = performance.now();
+                        const snapshot = wuw.snapshot();
+                        assert.lengthOf(snapshot, 1);
+                        const [record] = snapshot;
+                        assert.ownInclude
+                        (record, { target: spyTarget, propertyKey: 'foo', success: false });
+                        assert.notProperty(record, 'error');
+                        assert.timeRange
+                        (record.startTime, record.endTime, expectedStartTime, expectedEndTime);
+                        assert.match(record.stackTrace, CHANGE_PROPERTY_STACK_TRACE_PATTERN);
+                        assert.notEqual(wuwTarget.style, 'lorem ipsum');
+                    },
+                );
+
+                it
+                (
+                    'records a failed read-only accessor property set',
+                    () =>
+                    {
+                        const expectedError = SyntaxError('bar');
+                        const wuwTarget = document.createElement('DATA');
+                        const spyTarget = wuwTarget.style;
+                        Object.defineProperty
+                        (
+                            spyTarget,
+                            'foo',
+                            { // eslint-disable-line accessor-pairs
+                                configurable: true,
+                                set:
+                                () =>
+                                {
+                                    throw expectedError;
+                                },
+                            },
+                        );
+                        wuw.clear();
+                        wuw(wuwTarget);
+                        const expectedStartTime = performance.now();
+                        let actualError;
+                        try
+                        {
+                            changeProperty(wuwTarget.style, 'foo');
+                        }
+                        catch (error)
+                        {
+                            actualError = error;
+                        }
+                        const expectedEndTime = performance.now();
+                        assert.strictEqual(actualError, expectedError);
+                        const snapshot = wuw.snapshot();
+                        assert.lengthOf(snapshot, 1);
+                        const [record] = snapshot;
+                        assert.ownInclude
+                        (record, { target: spyTarget, propertyKey: 'foo', error: expectedError });
+                        assert.notProperty(record, 'success');
+                        assert.timeRange
+                        (record.startTime, record.endTime, expectedStartTime, expectedEndTime);
+                        assert.match(record.stackTrace, CHANGE_PROPERTY_STACK_TRACE_PATTERN);
                     },
                 );
 
