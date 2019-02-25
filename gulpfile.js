@@ -28,17 +28,10 @@ task
         (
             {
                 src: 'lib/**/*.js',
-                globals:
-                [
-                    'CSS2Properties',
-                    'CSSStyleDeclaration',
-                    'MessageChannel',
-                    'console',
-                    'performance',
-                    'require',
-                    'setImmediate',
-                ],
+                envs: 'browser',
+                globals: ['global', 'require', 'setImmediate'],
                 parserOptions: { ecmaVersion: 7 },
+                rules: { 'no-inner-declarations': 'off' },
             },
             {
                 src: ['*.js', 'test/**/*.js'],
