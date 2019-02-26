@@ -1,78 +1,17 @@
 /* eslint-env browser, mocha */
-/* global assert, chai, wuw */
+/*
+global
+CALLS,
+CHANGE_PROPERTY_STACK_TRACE_PATTERN,
+REFLECT_CHANGE_PROPERTY_STACK_TRACE_PATTERN,
+assert,
+changeProperty,
+mock,
+reflectChangeProperty,
+wuw,
+*/
 
 'use strict';
-
-function multilineRegExp(...regExps)
-{
-    const regExp = RegExp(regExps.map(({ source }) => source).join(''));
-    return regExp;
-}
-
-// changeProperty //////////////////////////////////////////////////////////////////////////////////
-
-const CHANGE_PROPERTY_STACK_TRACE_PATTERN =
-/^(?:(?: *at )?changeProperty\b.*wuw\.spec\.js(\?[\da-f]*)?:\d+:\d+\b.*\n){11}/;
-
-function changeProperty(obj, propertyKey, value = 'lorem ipsum', depth = 11)
-{
-    if (--depth)
-        changeProperty(obj, propertyKey, value, depth);
-    else
-        obj[propertyKey] = value;
-}
-
-const REFLECT_CHANGE_PROPERTY_STACK_TRACE_PATTERN =
-multilineRegExp
-(
-    /^(?:.*\bset\b.*\n)?/,
-    /(?:(?: *at )?reflectChangeProperty\b.*wuw\.spec\.js(?:\?[\da-f]*)?:\d+:\d+\b.*\n){11}/,
-);
-
-function reflectChangeProperty(obj, propertyKey, value = 'lorem ipsum', depth = 11)
-{
-    let success;
-    if (--depth)
-        success = reflectChangeProperty(obj, propertyKey, value, depth);
-    else
-        success = Reflect.set(obj, propertyKey, value);
-    return success;
-}
-
-// mock ////////////////////////////////////////////////////////////////////////////////////////////
-
-const CALLS = Symbol('calls');
-
-function mock()
-{
-    const stub =
-    function (...args)
-    {
-        const call = { args, this: this };
-        calls.push(call);
-    };
-    const calls = stub[CALLS] = [];
-    return stub;
-}
-
-// Assertions //////////////////////////////////////////////////////////////////////////////////////
-
-{
-    const { Assertion } = chai;
-
-    const DELTA = 10;
-
-    const timeRange =
-    (actStartTime, actEndTime, expStartTime, expEndTime) =>
-    {
-        new Assertion(actStartTime, undefined, timeRange, true).to.be.closeTo(expStartTime, DELTA);
-        new Assertion(actEndTime, undefined, timeRange, true).to.be.closeTo(expEndTime, DELTA);
-        new Assertion(actEndTime, undefined, timeRange, true).to.be.least(actStartTime);
-    };
-    assert.timeRange = timeRange;
-}
-
-// Unit Tests //////////////////////////////////////////////////////////////////////////////////////
 
 describe
 (
@@ -81,7 +20,7 @@ describe
     {
         it
         (
-            'is defined correctly',
+            'has expected properties',
             () =>
             {
                 assert.ownInclude(wuw, { length: 1, name: 'wuw' });
