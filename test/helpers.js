@@ -44,16 +44,66 @@ function reflectChangeProperty(obj, propertyKey, value = 'lorem ipsum', depth = 
 {
     const { Assertion } = chai;
 
-    const DELTA = 10;
-
-    const timeRange =
-    (actStartTime, actEndTime, expStartTime, expEndTime) =>
     {
-        new Assertion(actStartTime, undefined, timeRange, true).to.be.closeTo(expStartTime, DELTA);
-        new Assertion(actEndTime, undefined, timeRange, true).to.be.closeTo(expEndTime, DELTA);
-        new Assertion(actEndTime, undefined, timeRange, true).to.be.least(actStartTime);
-    };
-    assert.timeRange = timeRange;
+        const DELTA = 10;
+
+        const timeRange =
+        (actStartTime, actEndTime, expStartTime, expEndTime) =>
+        {
+            new Assertion(actStartTime, undefined, timeRange, true).closeTo(expStartTime, DELTA);
+            new Assertion(actEndTime, undefined, timeRange, true).closeTo(expEndTime, DELTA);
+            new Assertion(actEndTime, undefined, timeRange, true).least(actStartTime);
+        };
+        assert.timeRange = timeRange;
+    }
+    {
+        function formatPropertyKey(propertyKey)
+        {
+            const str =
+            typeof propertyKey === 'string' ? JSON.stringify(propertyKey) : String(propertyKey);
+            return str;
+        }
+
+        function hasConsistentOwnProperties(obj)
+        {
+            const ownDescs = Object.getOwnPropertyDescriptors(obj);
+            for (const [propertyKey, ownDesc] of Object.entries(ownDescs))
+            {
+                void
+                new Assertion
+                (
+                    ownDesc.enumerable,
+                    `Property ${formatPropertyKey(propertyKey)} should be not enumerable`,
+                    hasConsistentOwnProperties,
+                    true,
+                )
+                .false;
+                void
+                new Assertion
+                (
+                    ownDesc.configurable,
+                    `Property ${formatPropertyKey(propertyKey)} should be configurable`,
+                    hasConsistentOwnProperties,
+                    true,
+                )
+                .true;
+                if ('value' in ownDesc)
+                {
+                    void
+                    new Assertion
+                    (
+                        ownDesc.writable,
+                        `Property ${formatPropertyKey(propertyKey)} should be not writable`,
+                        hasConsistentOwnProperties,
+                        true,
+                    )
+                    .false;
+                }
+            }
+        }
+
+        assert.hasConsistentOwnProperties = hasConsistentOwnProperties;
+    }
 }
 
 // mock ////////////////////////////////////////////////////////////////////////////////////////////

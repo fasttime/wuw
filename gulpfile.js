@@ -36,6 +36,7 @@ task
             {
                 src: ['*.js', 'test/**/*.js'],
                 parserOptions: { ecmaVersion: 8 },
+                rules: { 'no-inner-declarations': 'off' },
             },
         );
         return stream;

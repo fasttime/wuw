@@ -25,6 +25,7 @@ describe
             {
                 assert.ownInclude(wuw, { length: 1, name: 'wuw' });
                 assert.notProperty(wuw, 'prototype');
+                assert.hasConsistentOwnProperties(wuw);
             },
         );
 
@@ -202,7 +203,8 @@ describe
             {
                 const wuwTarget = document.createElement('DATA');
                 Object.defineProperty(wuwTarget, 'foo', { value: 42, writable: true });
-                const remarkUndeletableProperties = wuw.remarkUndeletableProperties = mock();
+                const remarkUndeletableProperties =
+                wuw.watching.remarkUndeletableProperties = mock();
                 wuw(wuwTarget);
                 assert.lengthOf(remarkUndeletableProperties[CALLS], 1);
                 wuwTarget.foobar = 'FOO';
