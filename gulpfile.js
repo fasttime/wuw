@@ -31,12 +31,12 @@ task
                 envs: 'browser',
                 globals: ['global', 'require', 'setImmediate'],
                 parserOptions: { ecmaVersion: 7 },
-                rules: { 'no-inner-declarations': 'off' },
+                rules: { 'no-inner-declarations': 'off', 'no-loop-func': 'off' },
             },
             {
                 src: ['*.js', 'test/**/*.js'],
                 parserOptions: { ecmaVersion: 8 },
-                rules: { 'no-inner-declarations': 'off' },
+                rules: { 'no-inner-declarations': 'off', 'no-loop-func': 'off' },
             },
         );
         return stream;
