@@ -36,27 +36,54 @@ describe
     {
         it
         (
-            'returns wuw',
+            'returns wuw with an unwatched target',
             () =>
             {
-                const returnValue = wuw.watch(document.createTextNode(''));
+                const wuwTarget = document.createTextNode('');
+                const returnValue = wuw.watch(wuwTarget);
                 assert.strictEqual(returnValue, wuw);
             },
         );
 
         it
         (
-            'targets only once',
+            'returns wuw with a watched target',
+            () =>
+            {
+                const wuwTarget = document.createTextNode('');
+                wuw(wuwTarget);
+                const returnValue = wuw.watch(wuwTarget);
+                assert.strictEqual(returnValue, wuw);
+            },
+        );
+
+        it
+        (
+            'strips own properties',
+            () =>
+            {
+                const wuwTarget = document.createTextNode('');
+                wuwTarget.foo = 'bar';
+                wuw.watch(wuwTarget);
+                assert.empty(Object.getOwnPropertyDescriptors(wuwTarget));
+                assert.propertyVal(wuwTarget, 'foo', 'bar');
+            },
+        );
+
+        it
+        (
+            'warns about undeletable own properties',
             () =>
             {
                 const wuwTarget = document.createElement('DATA');
+                Object.defineProperty(wuwTarget, 'foo', { value: 42, writable: true });
+                const remarkUndeletableProperties =
+                wuw.watching.remarkUndeletableProperties = mock();
                 wuw.watch(wuwTarget);
-                wuw.watch(wuwTarget);
-                wuwTarget.textContent = 'foobar';
-                assert.strictEqual
+                assert.deepEqual
                 (
-                    Object.getPrototypeOf(Object.getPrototypeOf(wuwTarget)),
-                    HTMLDataElement.prototype,
+                    remarkUndeletableProperties[CALLS],
+                    [{ args: [wuwTarget, ['foo']], this: undefined }],
                 );
             },
         );
@@ -120,7 +147,106 @@ describe
 
 describe
 (
-    'wuw targeting',
+    'unwatch',
+    () =>
+    {
+        it
+        (
+            'returns wuw with an unwatched target',
+            () =>
+            {
+                const wuwTarget = document.createTextNode('');
+                const returnValue = wuw.unwatch(wuwTarget);
+                assert.strictEqual(returnValue, wuw);
+            },
+        );
+
+        it
+        (
+            'returns wuw with a watched target',
+            () =>
+            {
+                const wuwTarget = document.createTextNode('');
+                wuw(wuwTarget);
+                const returnValue = wuw.unwatch(wuwTarget);
+                assert.strictEqual(returnValue, wuw);
+            },
+        );
+
+        it
+        (
+            'unstrips own properties',
+            () =>
+            {
+                const wuwTarget = document.createTextNode('');
+                wuwTarget[0] = 'foo';
+                wuwTarget[1] = 'bar';
+                wuw.watch(wuwTarget);
+                Object.defineProperty(wuwTarget, 0, { value: 'baz' });
+                wuw.unwatch(wuwTarget);
+                assert.ownInclude(wuwTarget, { 1: 'bar' });
+            },
+        );
+
+        const data =
+        [
+            { unwatch: wuw.unwatch,             fullName: 'wuw.unwatch' },
+            { unwatch: wuw.watching.unwatch,    fullName: 'wuw.watching.unwatch' },
+        ];
+        for (const { unwatch, fullName } of data)
+        {
+            describe
+            (
+                fullName,
+                () =>
+                {
+                    it
+                    (
+                        'has expected properties',
+                        () =>
+                        {
+                            assert.ownInclude(unwatch, { length: 1, name: 'unwatch' });
+                            assert.notProperty(unwatch, 'prototype');
+                        },
+                    );
+
+                    it
+                    (
+                        'throws for missing argument',
+                        () =>
+                        {
+                            assert.throws
+                            (
+                                () => unwatch(),
+                                TypeError,
+                                `Argument of ${fullName} is missing or undefined`,
+                            );
+                        },
+                    );
+
+                    it
+                    (
+                        'throws for invalid argument',
+                        () =>
+                        {
+                            const wuwTarget = Object.create(document.createElement('DATA'));
+                            assert.throws
+                            (
+                                () => unwatch(wuwTarget),
+                                TypeError,
+                                `Argument of ${fullName} does not implement interface Node`,
+                            );
+                        },
+                    );
+                },
+            );
+        }
+    },
+);
+
+describe
+(
+    'watching',
     () =>
     {
         beforeEach(() => wuw.clear());
@@ -219,6 +345,37 @@ describe
 
         it
         (
+            'does not record a property set after unwatching',
+            () =>
+            {
+                const wuwTarget = document.createElement('DATA');
+                wuw.watch(wuwTarget).unwatch(wuwTarget);
+                wuwTarget.textContent = 'foobar';
+                const snapshot = wuw.snapshot();
+                assert.isEmpty(snapshot);
+            },
+        );
+
+        it
+        (
+            'targets only once',
+            () =>
+            {
+                const wuwTarget = document.createElement('DATA');
+                wuw.watch(wuwTarget).watch(wuwTarget);
+                wuwTarget.textContent = 'foobar';
+                assert.strictEqual
+                (
+                    Object.getPrototypeOf(Object.getPrototypeOf(wuwTarget)),
+                    HTMLDataElement.prototype,
+                );
+                const snapshot = wuw.snapshot();
+                assert.lengthOf(snapshot, 1);
+            },
+        );
+
+        it
+        (
             'does not target an inheritor',
             () =>
             {
@@ -238,17 +395,26 @@ describe
             () =>
             {
                 const wuwTarget = document.createElement('DATA');
-                Object.defineProperty(wuwTarget, 'foo', { value: 42, writable: true });
-                const remarkUndeletableProperties =
+                const remarkUndeletableProperties1 =
                 wuw.watching.remarkUndeletableProperties = mock();
                 wuw.watch(wuwTarget);
-                assert.lengthOf(remarkUndeletableProperties[CALLS], 1);
+                Object.defineProperty(wuwTarget, 'foo', { value: 42, writable: true });
                 wuwTarget.foobar = 'FOO';
-                assert.lengthOf(remarkUndeletableProperties[CALLS], 1);
+                assert.deepEqual
+                (
+                    remarkUndeletableProperties1[CALLS],
+                    [{ args: [wuwTarget, ['foo']], this: undefined }],
+                );
                 Object.defineProperty(wuwTarget, 'bar', { value: 42, writable: true });
                 Object.defineProperty(wuwTarget, 'baz', { value: 42, writable: true });
+                const remarkUndeletableProperties2 =
+                wuw.watching.remarkUndeletableProperties = mock();
                 wuwTarget.foobar = 'BAR';
-                assert.lengthOf(remarkUndeletableProperties[CALLS], 2);
+                assert.deepEqual
+                (
+                    remarkUndeletableProperties2[CALLS],
+                    [{ args: [wuwTarget, ['bar', 'baz']], this: undefined }],
+                );
             },
         );
     },
@@ -257,41 +423,6 @@ describe
 describe
 (
     'spying',
-    () =>
-    {
-        it
-        (
-            'targets only once',
-            () =>
-            {
-                const wuwTarget = document.createElement('DATA');
-                wuw.watch(wuwTarget);
-                const expectedStyle = wuwTarget.style;
-                const actualStyle = wuwTarget.style;
-                assert.strictEqual(actualStyle, expectedStyle);
-            },
-        );
-
-        it
-        (
-            'does not target an invalid style object',
-            () =>
-            {
-                const wuwTarget = document.createElement('DATA');
-                const expectedStyle = Object.create(wuwTarget.style);
-                Object.defineProperty
-                (wuwTarget, 'style', { configurable: true, value: expectedStyle });
-                wuw.watch(wuwTarget);
-                const actualStyle = wuwTarget.style;
-                assert.strictEqual(actualStyle, expectedStyle);
-            },
-        );
-    },
-);
-
-describe
-(
-    'spy targeting',
     () =>
     {
         beforeEach(() => wuw.clear());
@@ -395,7 +526,38 @@ describe
 
         it
         (
-            'does not spy an inheritor',
+            'does not record a property set after unspying',
+            () =>
+            {
+                const wuwTarget = document.createElement('DATA');
+                wuw.watch(wuwTarget);
+                const { style: spy } = wuwTarget;
+                wuw.unwatch(wuwTarget);
+                spy.display = 'none';
+                const snapshot = wuw.snapshot();
+                assert.isEmpty(snapshot);
+            },
+        );
+
+        it
+        (
+            'targets only once',
+            () =>
+            {
+                const wuwTarget = document.createElement('DATA');
+                wuw.watch(wuwTarget);
+                const expectedStyle = wuwTarget.style;
+                const actualStyle = wuwTarget.style;
+                expectedStyle.display = 'none';
+                assert.strictEqual(actualStyle, expectedStyle);
+                const snapshot = wuw.snapshot();
+                assert.lengthOf(snapshot, 1);
+            },
+        );
+
+        it
+        (
+            'does not target an inheritor',
             () =>
             {
                 const wuwTarget = document.createElement('DATA');
@@ -403,6 +565,23 @@ describe
                 const inheritor = Object.create(wuwTarget.style);
                 void inheritor.foo;
                 inheritor.foo = 'bar';
+                const snapshot = wuw.snapshot();
+                assert.isEmpty(snapshot);
+            },
+        );
+
+        it
+        (
+            'does not target an invalid style object',
+            () =>
+            {
+                const wuwTarget = document.createElement('DATA');
+                const expectedStyle = Object.create(wuwTarget.style);
+                Object.defineProperty
+                (wuwTarget, 'style', { configurable: true, value: expectedStyle });
+                wuw.watch(wuwTarget);
+                const actualStyle = wuwTarget.style;
+                assert.strictEqual(actualStyle, expectedStyle);
                 const snapshot = wuw.snapshot();
                 assert.isEmpty(snapshot);
             },
