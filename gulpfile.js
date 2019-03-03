@@ -2,7 +2,7 @@
 
 'use strict';
 
-const { parallel, series, task } = require('gulp');
+const { dest, parallel, series, src, task } = require('gulp');
 
 task
 (
@@ -11,7 +11,7 @@ task
     {
         const del = require('del');
 
-        const stream = del('coverage');
+        const stream = del(['coverage', 'lib/**/*.min.js']);
         return stream;
     },
 );
@@ -27,16 +27,14 @@ task
         lint
         (
             {
-                src: 'lib/**/*.js',
+                src: 'lib/wuw.js',
                 envs: 'browser',
                 globals: ['global', 'require', 'setImmediate'],
                 parserOptions: { ecmaVersion: 7 },
-                rules: { 'no-inner-declarations': 'off' },
             },
             {
                 src: ['*.js', 'test/**/*.js'],
                 parserOptions: { ecmaVersion: 8 },
-                rules: { 'no-inner-declarations': 'off' },
             },
         );
         return stream;
@@ -56,4 +54,28 @@ task
     },
 );
 
-task('default', series(parallel('clean', 'lint'), 'test'));
+task
+(
+    'uglify',
+    () =>
+    {
+        const composer = require('gulp-uglify/composer');
+        const rename = require('gulp-rename');
+        const uglifyjs = require('uglify-es');
+
+        const minify = composer(uglifyjs, console);
+        const minifyOpts =
+        {
+            compress: { hoist_funs: true, passes: 3 },
+            output: { comments: (node, comment) => comment.pos === 0 },
+        };
+        const stream =
+        src('lib/wuw.js')
+        .pipe(minify(minifyOpts))
+        .pipe(rename({ extname: '.min.js' }))
+        .pipe(dest('lib'));
+        return stream;
+    },
+);
+
+task('default', series(parallel('clean', 'lint'), 'test', 'uglify'));
