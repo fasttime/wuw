@@ -51,8 +51,7 @@ describe
             () =>
             {
                 const wuwTarget = document.createTextNode('');
-                wuw(wuwTarget);
-                const returnValue = wuw.watch(wuwTarget);
+                const returnValue = wuw(wuwTarget).watch(wuwTarget);
                 assert.strictEqual(returnValue, wuw);
             },
         );
@@ -88,59 +87,74 @@ describe
             },
         );
 
-        const data =
-        [
-            { watch: wuw,                   name: 'wuw',    fullName: 'wuw' },
-            { watch: wuw.watch,             name: 'watch',  fullName: 'wuw.watch' },
-            { watch: wuw.watching.watch,    name: 'watch',  fullName: 'wuw.watching.watch' },
-        ];
-        for (const { watch, name, fullName } of data)
         {
-            describe
-            (
-                fullName,
-                () =>
+            const data =
+            [
                 {
-                    it
-                    (
-                        'has expected properties',
-                        () =>
-                        {
-                            assert.ownInclude(watch, { length: 1, name });
-                            assert.notProperty(watch, 'prototype');
-                        },
-                    );
-
-                    it
-                    (
-                        'throws for missing argument',
-                        () =>
-                        {
-                            assert.throws
-                            (
-                                () => watch(),
-                                TypeError,
-                                `Argument of ${fullName} is missing or undefined`,
-                            );
-                        },
-                    );
-
-                    it
-                    (
-                        'throws for invalid argument',
-                        () =>
-                        {
-                            const wuwTarget = Object.create(document.createElement('DATA'));
-                            assert.throws
-                            (
-                                () => watch(wuwTarget),
-                                TypeError,
-                                `Argument of ${fullName} does not implement interface Node`,
-                            );
-                        },
-                    );
+                    watch: wuw,
+                    name: 'wuw',
+                    callerFullName: 'wuw',
                 },
-            );
+                {
+                    watch: wuw.watch,
+                    name: 'watch',
+                    callerFullName: 'wuw.watch',
+                },
+                {
+                    watch: wuw.watching.watch,
+                    name: 'watch',
+                    callerFullName: 'wuw.watching.watch',
+                },
+            ];
+            for (const { watch, name, callerFullName } of data)
+            {
+                describe
+                (
+                    callerFullName,
+                    () =>
+                    {
+                        it
+                        (
+                            'has expected properties',
+                            () =>
+                            {
+                                assert.ownInclude(watch, { length: 1, name });
+                                assert.notProperty(watch, 'prototype');
+                            },
+                        );
+
+                        it
+                        (
+                            'throws for missing argument',
+                            () =>
+                            {
+                                assert.throws
+                                (
+                                    () => watch(),
+                                    TypeError,
+                                    `Argument of ${callerFullName} is missing or undefined`,
+                                );
+                            },
+                        );
+
+                        it
+                        (
+                            'throws for invalid argument',
+                            () =>
+                            {
+                                const wuwTarget = Object.create(document.createElement('DATA'));
+                                assert.throws
+                                (
+                                    () => watch(wuwTarget),
+                                    TypeError,
+                                    `Argument of ${callerFullName} does not implement interface ` +
+                                    'Node',
+                                );
+                            },
+                        );
+                    },
+                );
+            }
         }
     },
 );
@@ -167,8 +181,7 @@ describe
             () =>
             {
                 const wuwTarget = document.createTextNode('');
-                wuw(wuwTarget);
-                const returnValue = wuw.unwatch(wuwTarget);
+                const returnValue = wuw(wuwTarget).unwatch(wuwTarget);
                 assert.strictEqual(returnValue, wuw);
             },
         );
@@ -190,14 +203,14 @@ describe
 
         const data =
         [
-            { unwatch: wuw.unwatch,             fullName: 'wuw.unwatch' },
-            { unwatch: wuw.watching.unwatch,    fullName: 'wuw.watching.unwatch' },
+            { unwatch: wuw.unwatch,             callerFullName: 'wuw.unwatch' },
+            { unwatch: wuw.watching.unwatch,    callerFullName: 'wuw.watching.unwatch' },
         ];
-        for (const { unwatch, fullName } of data)
+        for (const { unwatch, callerFullName } of data)
         {
             describe
             (
-                fullName,
+                callerFullName,
                 () =>
                 {
                     it
@@ -219,7 +232,7 @@ describe
                             (
                                 () => unwatch(),
                                 TypeError,
-                                `Argument of ${fullName} is missing or undefined`,
+                                `Argument of ${callerFullName} is missing or undefined`,
                             );
                         },
                     );
@@ -234,7 +247,7 @@ describe
                             (
                                 () => unwatch(wuwTarget),
                                 TypeError,
-                                `Argument of ${fullName} does not implement interface Node`,
+                                `Argument of ${callerFullName} does not implement interface Node`,
                             );
                         },
                     );
