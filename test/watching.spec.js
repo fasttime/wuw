@@ -76,12 +76,21 @@ describe
             {
                 const wuwTarget = document.createElement('DATA');
                 Object.defineProperty(wuwTarget, 'foo', { value: 42, writable: true });
-                const remarkUndeletableProperties =
+                const remarkUndeletableProperties1 =
                 wuw.watching.remarkUndeletableProperties = mock();
                 wuw.watch(wuwTarget);
                 assert.deepEqual
                 (
-                    remarkUndeletableProperties[CALLS],
+                    remarkUndeletableProperties1[CALLS],
+                    [{ args: [wuwTarget, ['foo']], this: undefined }],
+                );
+                wuw.watching.unwatchAll();
+                const remarkUndeletableProperties2 =
+                wuw.watching.remarkUndeletableProperties = mock();
+                wuw.watch(wuwTarget);
+                assert.deepEqual
+                (
+                    remarkUndeletableProperties2[CALLS],
                     [{ args: [wuwTarget, ['foo']], this: undefined }],
                 );
             },
@@ -371,17 +380,25 @@ describe
 
         it
         (
+            'does not record a property set after scheduling for unwatching',
+            () =>
+            {
+                const wuwTarget = document.createElement('DATA');
+                wuw.watch(wuwTarget).watching.unwatchAll();
+                wuwTarget.textContent = 'foobar';
+                const snapshot = wuw.snapshot();
+                assert.isEmpty(snapshot);
+            },
+        );
+
+        it
+        (
             'targets only once',
             () =>
             {
                 const wuwTarget = document.createElement('DATA');
                 wuw.watch(wuwTarget).watch(wuwTarget);
                 wuwTarget.textContent = 'foobar';
-                assert.strictEqual
-                (
-                    Object.getPrototypeOf(Object.getPrototypeOf(wuwTarget)),
-                    HTMLDataElement.prototype,
-                );
                 const snapshot = wuw.snapshot();
                 assert.lengthOf(snapshot, 1);
             },
@@ -554,6 +571,21 @@ describe
 
         it
         (
+            'does not record a property set after scheduling for unwatching',
+            () =>
+            {
+                const wuwTarget = document.createElement('DATA');
+                wuw.watch(wuwTarget);
+                const { style: spy } = wuwTarget;
+                wuw.watching.unwatchAll();
+                spy.display = 'none';
+                const snapshot = wuw.snapshot();
+                assert.isEmpty(snapshot);
+            },
+        );
+
+        it
+        (
             'targets only once',
             () =>
             {
@@ -565,6 +597,19 @@ describe
                 assert.strictEqual(actualStyle, expectedStyle);
                 const snapshot = wuw.snapshot();
                 assert.lengthOf(snapshot, 1);
+            },
+        );
+
+        it
+        (
+            'does not target after scheduling for unwatching',
+            () =>
+            {
+                const wuwTarget = document.createElement('DATA');
+                wuw.watch(wuwTarget).watching.unwatchAll();
+                wuwTarget.style.foo = 'bar';
+                const snapshot = wuw.snapshot();
+                assert.isEmpty(snapshot);
             },
         );
 
@@ -597,6 +642,33 @@ describe
                 assert.strictEqual(actualStyle, expectedStyle);
                 const snapshot = wuw.snapshot();
                 assert.isEmpty(snapshot);
+            },
+        );
+    },
+);
+
+describe
+(
+    'unwatchAll',
+    () =>
+    {
+        it
+        (
+            'returns wuw',
+            () =>
+            {
+                const returnValue = wuw.watching.unwatchAll();
+                assert.strictEqual(returnValue, wuw);
+            },
+        );
+
+        it
+        (
+            'has expected properties',
+            () =>
+            {
+                assert.ownInclude(wuw.watching.unwatchAll, { length: 0, name: 'unwatchAll' });
+                assert.notProperty(wuw.watching.unwatchAll, 'prototype');
             },
         );
     },
