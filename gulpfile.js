@@ -7,12 +7,11 @@ const { dest, parallel, series, src, task } = require('gulp');
 task
 (
     'clean',
-    () =>
+    async () =>
     {
         const del = require('del');
 
-        const stream = del(['coverage', 'lib/**/*.min.js']);
-        return stream;
+        await del(['coverage', 'lib/**/*.min.js']);
     },
 );
 

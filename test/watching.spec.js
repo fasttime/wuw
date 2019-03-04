@@ -76,17 +76,15 @@ describe
             {
                 const wuwTarget = document.createElement('DATA');
                 Object.defineProperty(wuwTarget, 'foo', { value: 42, writable: true });
-                const remarkUndeletableProperties1 =
-                wuw.watching.remarkUndeletableProperties = mock();
+                const remarkUndeletableProperties1 = wuw.remarkUndeletableProperties = mock();
                 wuw.watch(wuwTarget);
                 assert.deepEqual
                 (
                     remarkUndeletableProperties1[CALLS],
                     [{ args: [wuwTarget, ['foo']], this: undefined }],
                 );
-                wuw.watching.unwatchAll();
-                const remarkUndeletableProperties2 =
-                wuw.watching.remarkUndeletableProperties = mock();
+                wuw.unwatchAll();
+                const remarkUndeletableProperties2 = wuw.remarkUndeletableProperties = mock();
                 wuw.watch(wuwTarget);
                 assert.deepEqual
                 (
@@ -384,7 +382,7 @@ describe
             () =>
             {
                 const wuwTarget = document.createElement('DATA');
-                wuw.watch(wuwTarget).watching.unwatchAll();
+                wuw.watch(wuwTarget).unwatchAll();
                 wuwTarget.textContent = 'foobar';
                 const snapshot = wuw.snapshot();
                 assert.isEmpty(snapshot);
@@ -425,8 +423,7 @@ describe
             () =>
             {
                 const wuwTarget = document.createElement('DATA');
-                const remarkUndeletableProperties1 =
-                wuw.watching.remarkUndeletableProperties = mock();
+                const remarkUndeletableProperties1 = wuw.remarkUndeletableProperties = mock();
                 wuw.watch(wuwTarget);
                 Object.defineProperty(wuwTarget, 'foo', { value: 42, writable: true });
                 wuwTarget.foobar = 'FOO';
@@ -437,8 +434,7 @@ describe
                 );
                 Object.defineProperty(wuwTarget, 'bar', { value: 42, writable: true });
                 Object.defineProperty(wuwTarget, 'baz', { value: 42, writable: true });
-                const remarkUndeletableProperties2 =
-                wuw.watching.remarkUndeletableProperties = mock();
+                const remarkUndeletableProperties2 = wuw.remarkUndeletableProperties = mock();
                 wuwTarget.foobar = 'BAR';
                 assert.deepEqual
                 (
@@ -577,7 +573,7 @@ describe
                 const wuwTarget = document.createElement('DATA');
                 wuw.watch(wuwTarget);
                 const { style: spy } = wuwTarget;
-                wuw.watching.unwatchAll();
+                wuw.unwatchAll();
                 spy.display = 'none';
                 const snapshot = wuw.snapshot();
                 assert.isEmpty(snapshot);
@@ -606,7 +602,7 @@ describe
             () =>
             {
                 const wuwTarget = document.createElement('DATA');
-                wuw.watch(wuwTarget).watching.unwatchAll();
+                wuw.watch(wuwTarget).unwatchAll();
                 wuwTarget.style.foo = 'bar';
                 const snapshot = wuw.snapshot();
                 assert.isEmpty(snapshot);
@@ -657,19 +653,34 @@ describe
             'returns wuw',
             () =>
             {
-                const returnValue = wuw.watching.unwatchAll();
+                const returnValue = wuw.unwatchAll();
                 assert.strictEqual(returnValue, wuw);
             },
         );
 
-        it
-        (
-            'has expected properties',
-            () =>
-            {
-                assert.ownInclude(wuw.watching.unwatchAll, { length: 0, name: 'unwatchAll' });
-                assert.notProperty(wuw.watching.unwatchAll, 'prototype');
-            },
-        );
+        const data =
+        [
+            { unwatchAll: wuw.unwatchAll,           callerFullName: 'wuw.unwatchAll' },
+            { unwatchAll: wuw.watching.unwatchAll,  callerFullName: 'wuw.watching.unwatchAll' },
+        ];
+        for (const { unwatchAll, callerFullName } of data)
+        {
+            describe
+            (
+                callerFullName,
+                () =>
+                {
+                    it
+                    (
+                        'has expected properties',
+                        () =>
+                        {
+                            assert.ownInclude(unwatchAll, { length: 0, name: 'unwatchAll' });
+                            assert.notProperty(unwatchAll, 'prototype');
+                        },
+                    );
+                },
+            );
+        }
     },
 );

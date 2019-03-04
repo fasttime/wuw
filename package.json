@@ -27,7 +27,7 @@
   },
   "devDependencies": {
     "chai": "~4.2.0",
-    "del": "~3.0.0",
+    "del": "~4.0.0",
     "gulp": "~4.0.0",
     "gulp-fasttime-lint": "~0.8.1",
     "gulp-rename": "~1.4.0",
