@@ -8,9 +8,9 @@ config.set
 (
     {
         browsers: ['ChromeHeadless'],
-        files: ['lib/**/*.js', 'test/helpers.js', 'test/**/*.spec.js'],
+        files: ['lib/wuw.js', 'test/helpers.js', 'test/**/*.spec.js'],
         frameworks: ['chai', 'mocha'],
-        preprocessors: { 'lib/**/*.js': ['coverage'] },
+        preprocessors: { 'lib/wuw.js': ['coverage'] },
         reporters: ['coverage', 'progress'],
     },
 );

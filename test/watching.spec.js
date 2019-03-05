@@ -6,6 +6,7 @@ CHANGE_PROPERTY_STACK_TRACE_PATTERN,
 REFLECT_CHANGE_PROPERTY_STACK_TRACE_PATTERN,
 assert,
 changeProperty,
+loadWuw,
 mock,
 reflectChangeProperty,
 wuw,
@@ -676,29 +677,178 @@ describe
             },
         );
 
-        const data =
-        [
-            { unwatchAll: wuw.unwatchAll,           callerFullName: 'wuw.unwatchAll' },
-            { unwatchAll: wuw.watching.unwatchAll,  callerFullName: 'wuw.watching.unwatchAll' },
-        ];
-        for (const { unwatchAll, callerFullName } of data)
         {
-            describe
-            (
-                callerFullName,
-                () =>
+            const data =
+            [
+                { unwatchAll: wuw.unwatchAll,           callerFullName: 'wuw.unwatchAll' },
+                { unwatchAll: wuw.watching.unwatchAll,  callerFullName: 'wuw.watching.unwatchAll' },
+            ];
+            for (const { unwatchAll, callerFullName } of data)
+            {
+                describe
+                (
+                    callerFullName,
+                    () =>
+                    {
+                        it
+                        (
+                            'has expected properties',
+                            () =>
+                            {
+                                assert.ownInclude(unwatchAll, { length: 0, name: 'unwatchAll' });
+                                assert.notProperty(unwatchAll, 'prototype');
+                            },
+                        );
+                    },
+                );
+            }
+        }
+    },
+);
+
+describe
+(
+    'defaultRemarkUndeletableProperties',
+    () =>
+    {
+        it
+        (
+            'has expected properties',
+            () =>
+            {
+                assert.ownInclude
+                (
+                    wuw.defaultRemarkUndeletableProperties,
+                    { length: 2, name: 'defaultRemarkUndeletableProperties' },
+                );
+                assert.notProperty(wuw.defaultRemarkUndeletableProperties, 'prototype');
+            },
+        );
+
+        describe
+        (
+            'warns about',
+            () =>
+            {
+                const data =
+                [
+                    {
+                        description: 'one property',
+                        propertyKeys: ['foo'],
+                        formattedPropertyKeys: '"foo"',
+                    },
+                    {
+                        description: 'two properties',
+                        propertyKeys: [Symbol('foo'), 'bar'],
+                        formattedPropertyKeys: '"bar" and Symbol(foo)',
+                    },
+                    {
+                        description: 'three properties',
+                        propertyKeys: [Symbol('foo'), 'bar', 42],
+                        formattedPropertyKeys: '"42", "bar" and Symbol(foo)',
+                    },
+                ];
+                for (const { description, propertyKeys, formattedPropertyKeys } of data)
                 {
                     it
                     (
-                        'has expected properties',
-                        () =>
+                        description,
+                        async () =>
                         {
-                            assert.ownInclude(unwatchAll, { length: 0, name: 'unwatchAll' });
-                            assert.notProperty(unwatchAll, 'prototype');
+                            const _console_warn = mock();
+                            const wuw = await loadWuw({ _console_warn });
+                            const wuwTarget = document.createElement('DATA');
+                            propertyKeys.forEach
+                            (
+                                propertyKey =>
+                                Object.defineProperty(wuwTarget, propertyKey, { value: undefined }),
+                            );
+                            wuw(wuwTarget);
+                            assert.deepEqual
+                            (
+                                _console_warn[CALLS],
+                                [
+                                    {
+                                        args:
+                                        [
+                                            'The target object %o has undeletable properties: %s',
+                                            wuwTarget,
+                                            formattedPropertyKeys,
+                                        ],
+                                        this: undefined,
+                                    },
+                                ],
+                            );
                         },
                     );
-                },
-            );
-        }
+                }
+            },
+        );
+    },
+);
+
+describe
+(
+    'remarkUndeletableProperties',
+    () =>
+    {
+        it
+        (
+            'is initially set to defaultRemarkUndeletableProperties',
+            async () =>
+            {
+                const wuw = await loadWuw();
+                assert.strictEqual
+                (wuw.remarkUndeletableProperties, wuw.defaultRemarkUndeletableProperties);
+            },
+        );
+
+        it
+        (
+            'can be set to a function',
+            () =>
+            {
+                const remarkUndeletableProperties = Function();
+                wuw.remarkUndeletableProperties = remarkUndeletableProperties;
+                assert.strictEqual(wuw.remarkUndeletableProperties, remarkUndeletableProperties);
+            },
+        );
+
+        it
+        (
+            'can be set to null by null',
+            () =>
+            {
+                wuw.remarkUndeletableProperties = null;
+                assert.isNull(wuw.remarkUndeletableProperties);
+            },
+        );
+
+        it
+        (
+            'can be set to null by undefined',
+            () =>
+            {
+                wuw.remarkUndeletableProperties = undefined;
+                assert.isNull(wuw.remarkUndeletableProperties);
+            },
+        );
+
+        it
+        (
+            'cannot be set to a non-function',
+            () =>
+            {
+                assert.throws
+                (
+                    () =>
+                    {
+                        wuw.remarkUndeletableProperties = { };
+                    },
+                    TypeError,
+                    'remarkUndeletableProperties must be a function, undefined or null',
+                );
+            },
+        );
     },
 );

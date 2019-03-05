@@ -57,7 +57,7 @@ describe
             {
                 const expectedError = SyntaxError('bar');
                 const _console_error = mock();
-                const wuw = await loadWuw(_console_error);
+                const wuw = await loadWuw({ _console_error });
                 wuw.do
                 (
                     () =>

@@ -126,7 +126,7 @@ function mock()
 
 const WUW_PATH = window.__karma__ ? '/base/lib/wuw.js' : '../lib/wuw.js';
 
-function loadWuw(_console_error)
+function loadWuw({ _console_error, _console_warn } = { })
 {
     const promise =
     new Promise
@@ -145,7 +145,10 @@ function loadWuw(_console_error)
                 {
                     const { wuw } = selfMock;
                     Object.defineProperty(window, 'self', selfDesc);
-                    Object.defineProperty(console, 'error', _console_errorDesc);
+                    if (_console_error !== undefined)
+                        Object.defineProperty(console, 'error', _console_errorDesc);
+                    if (_console_warn !== undefined)
+                        Object.defineProperty(console, 'warn', _console_warnDesc);
                     resolve(wuw);
                 };
                 script.src = WUW_PATH;
@@ -154,9 +157,20 @@ function loadWuw(_console_error)
                 const selfDesc = Object.getOwnPropertyDescriptor(window, 'self');
                 Object.defineProperty
                 (window, 'self', { configurable: true, value: selfMock });
-                const _console_errorDesc = Object.getOwnPropertyDescriptor(console, 'error');
-                Object.defineProperty
-                (console, 'error', { configurable: true, value: _console_error });
+                let _console_errorDesc;
+                if (_console_error !== undefined)
+                {
+                    _console_errorDesc = Object.getOwnPropertyDescriptor(console, 'error');
+                    Object.defineProperty
+                    (console, 'error', { configurable: true, value: _console_error });
+                }
+                let _console_warnDesc;
+                if (_console_warn !== undefined)
+                {
+                    _console_warnDesc = Object.getOwnPropertyDescriptor(console, 'warn');
+                    Object.defineProperty
+                    (console, 'warn', { configurable: true, value: _console_warn });
+                }
             }
         },
     );
