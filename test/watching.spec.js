@@ -63,9 +63,12 @@ describe
             {
                 const wuwTarget = document.createTextNode('');
                 wuwTarget.foo = 'bar';
+                wuwTarget[Symbol.split] = 'baz';
                 wuw.watch(wuwTarget);
-                assert.empty(Object.getOwnPropertyDescriptors(wuwTarget));
+                assert.empty(Object.getOwnPropertyNames(wuwTarget));
+                assert.empty(Object.getOwnPropertySymbols(wuwTarget));
                 assert.propertyVal(wuwTarget, 'foo', 'bar');
+                assert.propertyVal(wuwTarget, Symbol.split, 'baz');
             },
         );
 
@@ -75,13 +78,20 @@ describe
             () =>
             {
                 const wuwTarget = document.createElement('DATA');
-                Object.defineProperty(wuwTarget, 'foo', { value: 42, writable: true });
+                Object.defineProperties
+                (
+                    wuwTarget,
+                    {
+                        [Symbol.split]: { value: undefined, writable: true },
+                        foo: { value: undefined, writable: true },
+                    },
+                );
                 const remarkUndeletableProperties1 = wuw.remarkUndeletableProperties = mock();
                 wuw.watch(wuwTarget);
                 assert.deepEqual
                 (
                     remarkUndeletableProperties1[CALLS],
-                    [{ args: [wuwTarget, ['foo']], this: undefined }],
+                    [{ args: [wuwTarget, ['foo', Symbol.split]], this: undefined }],
                 );
                 wuw.unwatchAll();
                 const remarkUndeletableProperties2 = wuw.remarkUndeletableProperties = mock();
@@ -89,7 +99,7 @@ describe
                 assert.deepEqual
                 (
                     remarkUndeletableProperties2[CALLS],
-                    [{ args: [wuwTarget, ['foo']], this: undefined }],
+                    [{ args: [wuwTarget, ['foo', Symbol.split]], this: undefined }],
                 );
             },
         );
@@ -201,10 +211,12 @@ describe
                 const wuwTarget = document.createTextNode('');
                 wuwTarget[0] = 'foo';
                 wuwTarget[1] = 'bar';
+                wuwTarget[Symbol.split] = 'baz';
                 wuw.watch(wuwTarget);
-                Object.defineProperty(wuwTarget, 0, { value: 'baz' });
+                Object.defineProperty(wuwTarget, 0, { value: 'foobar' });
                 wuw.unwatch(wuwTarget);
-                assert.ownInclude(wuwTarget, { 1: 'bar' });
+                assert.propertyVal(wuwTarget, 1, 'bar');
+                assert.propertyVal(wuwTarget, Symbol.split, 'baz');
             },
         );
 
@@ -425,21 +437,27 @@ describe
                 const wuwTarget = document.createElement('DATA');
                 const remarkUndeletableProperties1 = wuw.remarkUndeletableProperties = mock();
                 wuw.watch(wuwTarget);
-                Object.defineProperty(wuwTarget, 'foo', { value: 42, writable: true });
+                Object.defineProperty(wuwTarget, 'foo', { value: undefined, writable: true });
                 wuwTarget.foobar = 'FOO';
                 assert.deepEqual
                 (
                     remarkUndeletableProperties1[CALLS],
                     [{ args: [wuwTarget, ['foo']], this: undefined }],
                 );
-                Object.defineProperty(wuwTarget, 'bar', { value: 42, writable: true });
-                Object.defineProperty(wuwTarget, 'baz', { value: 42, writable: true });
+                Object.defineProperties
+                (
+                    wuwTarget,
+                    {
+                        [Symbol.split]: { value: undefined, writable: true },
+                        bar: { value: undefined, writable: true },
+                    },
+                );
                 const remarkUndeletableProperties2 = wuw.remarkUndeletableProperties = mock();
                 wuwTarget.foobar = 'BAR';
                 assert.deepEqual
                 (
                     remarkUndeletableProperties2[CALLS],
-                    [{ args: [wuwTarget, ['bar', 'baz']], this: undefined }],
+                    [{ args: [wuwTarget, ['bar', Symbol.split]], this: undefined }],
                 );
             },
         );
