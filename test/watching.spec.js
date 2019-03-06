@@ -282,7 +282,7 @@ describe
     'watching',
     () =>
     {
-        beforeEach(() => wuw.clear());
+        beforeEach(() => wuw.reset());
 
         it
         (
@@ -470,7 +470,7 @@ describe
     'spying',
     () =>
     {
-        beforeEach(() => wuw.clear());
+        beforeEach(() => wuw.reset());
 
         it
         (

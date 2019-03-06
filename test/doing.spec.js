@@ -159,16 +159,6 @@ describe
 
         it
         (
-            'returns wuw',
-            () =>
-            {
-                const returnValue = wuw.dont(Function());
-                assert.strictEqual(returnValue, wuw);
-            },
-        );
-
-        it
-        (
             'works as expected',
             () =>
             {
@@ -236,5 +226,64 @@ describe
                 );
             }
         }
+    },
+);
+
+describe
+(
+    'wuw.doNothing',
+    () =>
+    {
+        it
+        (
+            'returns wuw',
+            () =>
+            {
+                const returnValue = wuw.doNothing();
+                assert.strictEqual(returnValue, wuw);
+            },
+        );
+
+        /*
+        it
+        (
+            'works as expected',
+            () =>
+            {
+                const callback = mock();
+                wuw.do(callback);
+                wuw.doNothing();
+                const wuwTarget = document.createElement('DATA');
+                wuw(wuwTarget);
+                wuwTarget.textContent = 'foobar';
+                assert.isEmpty(callback[CALLS]);
+            },
+        );
+
+        describe
+        (
+            'has expected properties',
+            () =>
+            {
+                const data =
+                [
+                    { doNothing: wuw.doNothing,         callerFullName: 'wuw.doNothing' },
+                    { doNothing: wuw.doing.doNothing,   callerFullName: 'wuw.doing.doNothing' },
+                ];
+                for (const { doNothing, callerFullName } of data)
+                {
+                    it
+                    (
+                        callerFullName,
+                        () =>
+                        {
+                            assert.ownInclude(doNothing, { length: 0, name: 'doNothing' });
+                            assert.notProperty(doNothing, 'prototype');
+                        },
+                    );
+                }
+            },
+        );
+        */
     },
 );
