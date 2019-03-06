@@ -745,7 +745,7 @@ describe
                     {
                         description: 'three properties',
                         propertyKeys: [Symbol('foo'), 'bar', 42],
-                        formattedPropertyKeys: '"42", "bar" and Symbol(foo)',
+                        formattedPropertyKeys: '"42", "bar", and Symbol(foo)',
                     },
                 ];
                 for (const { description, propertyKeys, formattedPropertyKeys } of data)
