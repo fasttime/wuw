@@ -1,20 +1,25 @@
-/* eslint-env mocha */
-/* global assert, wuw */
+/* eslint-env browser, mocha */
+/* global assert, mock, loadWuw, wuw */
 
 'use strict';
 
-describe
+beforeEach
 (
-    'wuw',
-    () =>
+    async () =>
     {
-        it
+        const _console_error = mock();
+        const _console_warn = mock();
+        const wuw = await loadWuw({ _console_error, _console_warn });
+        Object.defineProperties
         (
-            'has expected properties',
-            () =>
+            self,
             {
-                assert.hasConsistentOwnProperties(wuw);
+                wuw: { configurable: true, value: wuw },
+                _console_error: { configurable: true, value: _console_error },
+                _console_warn: { configurable: true, value: _console_warn },
             },
         );
     },
 );
+
+describe('wuw', () => it('has expected properties', () => assert.hasConsistentOwnProperties(wuw)));

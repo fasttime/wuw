@@ -4,9 +4,9 @@ global
 CALLS,
 CHANGE_PROPERTY_STACK_TRACE_PATTERN,
 REFLECT_CHANGE_PROPERTY_STACK_TRACE_PATTERN,
+_console_warn,
 assert,
 changeProperty,
-loadWuw,
 mock,
 reflectChangeProperty,
 wuw,
@@ -17,17 +17,7 @@ wuw,
 describe
 (
     'watching',
-    () =>
-    {
-        it
-        (
-            'has expected properties',
-            () =>
-            {
-                assert.hasConsistentOwnProperties(wuw.watching);
-            },
-        );
-    },
+    () => it('has expected properties', () => assert.hasConsistentOwnProperties(wuw.watching)),
 );
 
 describe
@@ -64,12 +54,12 @@ describe
             {
                 const wuwTarget = document.createTextNode('');
                 wuwTarget.foo = 'bar';
-                wuwTarget[Symbol.split] = 'baz';
+                wuwTarget[Symbol.species] = 'baz';
                 wuw.watch(wuwTarget);
                 assert.empty(Object.getOwnPropertyNames(wuwTarget));
                 assert.empty(Object.getOwnPropertySymbols(wuwTarget));
                 assert.propertyVal(wuwTarget, 'foo', 'bar');
-                assert.propertyVal(wuwTarget, Symbol.split, 'baz');
+                assert.propertyVal(wuwTarget, Symbol.species, 'baz');
             },
         );
 
@@ -83,7 +73,7 @@ describe
                 (
                     wuwTarget,
                     {
-                        [Symbol.split]: { value: undefined, writable: true },
+                        [Symbol.species]: { value: undefined, writable: true },
                         foo: { value: undefined, writable: true },
                     },
                 );
@@ -92,7 +82,7 @@ describe
                 assert.deepEqual
                 (
                     remarkUndeletableProperties1[CALLS],
-                    [{ args: [wuwTarget, ['foo', Symbol.split]], this: undefined }],
+                    [{ args: [wuwTarget, ['foo', Symbol.species]], this: undefined }],
                 );
                 wuw.unwatchAll();
                 const remarkUndeletableProperties2 = wuw.remarkUndeletableProperties = mock();
@@ -100,7 +90,7 @@ describe
                 assert.deepEqual
                 (
                     remarkUndeletableProperties2[CALLS],
-                    [{ args: [wuwTarget, ['foo', Symbol.split]], this: undefined }],
+                    [{ args: [wuwTarget, ['foo', Symbol.species]], this: undefined }],
                 );
             },
         );
@@ -212,12 +202,12 @@ describe
                 const wuwTarget = document.createTextNode('');
                 wuwTarget[0] = 'foo';
                 wuwTarget[1] = 'bar';
-                wuwTarget[Symbol.split] = 'baz';
+                wuwTarget[Symbol.species] = 'baz';
                 wuw.watch(wuwTarget);
                 Object.defineProperty(wuwTarget, 0, { value: 'foobar' });
                 wuw.unwatch(wuwTarget);
                 assert.propertyVal(wuwTarget, 1, 'bar');
-                assert.propertyVal(wuwTarget, Symbol.split, 'baz');
+                assert.propertyVal(wuwTarget, Symbol.species, 'baz');
             },
         );
 
@@ -282,8 +272,6 @@ describe
     'watching',
     () =>
     {
-        beforeEach(() => wuw.reset());
-
         it
         (
             'records a successful property set',
@@ -449,7 +437,7 @@ describe
                 (
                     wuwTarget,
                     {
-                        [Symbol.split]: { value: undefined, writable: true },
+                        [Symbol.species]: { value: undefined, writable: true },
                         bar: { value: undefined, writable: true },
                     },
                 );
@@ -458,7 +446,7 @@ describe
                 assert.deepEqual
                 (
                     remarkUndeletableProperties2[CALLS],
-                    [{ args: [wuwTarget, ['bar', Symbol.split]], this: undefined }],
+                    [{ args: [wuwTarget, ['bar', Symbol.species]], this: undefined }],
                 );
             },
         );
@@ -470,8 +458,6 @@ describe
     'spying',
     () =>
     {
-        beforeEach(() => wuw.reset());
-
         it
         (
             'records a successful property set',
@@ -713,13 +699,29 @@ describe
     {
         it
         (
+            'is read-only',
+            () =>
+            {
+                assert.throws
+                (
+                    () =>
+                    {
+                        wuw.defaultRemarkUndeletableProperties = null;
+                    },
+                    TypeError,
+                );
+            },
+        );
+
+        it
+        (
             'has expected properties',
             () =>
             {
                 assert.ownInclude
                 (
                     wuw.defaultRemarkUndeletableProperties,
-                    { length: 2, name: 'defaultRemarkUndeletableProperties' },
+                    { length: 2, name: 'remarkUndeletableProperties' },
                 );
                 assert.notProperty(wuw.defaultRemarkUndeletableProperties, 'prototype');
             },
@@ -753,10 +755,8 @@ describe
                     it
                     (
                         description,
-                        async () =>
+                        () =>
                         {
-                            const _console_warn = mock();
-                            const wuw = await loadWuw({ _console_warn });
                             const wuwTarget = document.createElement('DATA');
                             propertyKeys.forEach
                             (
@@ -795,9 +795,8 @@ describe
         it
         (
             'is initially set to defaultRemarkUndeletableProperties',
-            async () =>
+            () =>
             {
-                const wuw = await loadWuw();
                 assert.strictEqual
                 (wuw.remarkUndeletableProperties, wuw.defaultRemarkUndeletableProperties);
             },

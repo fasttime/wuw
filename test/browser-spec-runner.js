@@ -3,6 +3,7 @@
 
 'use strict';
 
-mocha.setup({ ignoreLeaks: false, reporter: MochaBar, ui: 'bdd' });
+mocha.setup
+({ globals: ['$0', '$1', '$2', '$3', '$4'], ignoreLeaks: false, reporter: MochaBar, ui: 'bdd' });
 addEventListener('load', () => mocha.run());
 const { assert } = chai;

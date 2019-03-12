@@ -1,27 +1,23 @@
 /* eslint-env browser, mocha */
-/* global CALLS, CHANGE_PROPERTY_STACK_TRACE_PATTERN, assert, changeProperty, loadWuw, mock, wuw */
+/*
+global
+CALLS,
+CHANGE_PROPERTY_STACK_TRACE_PATTERN,
+_console_error,
+assert,
+changeProperty,
+mock,
+wuw,
+*/
 
 'use strict';
 
 describe
-(
-    'doing',
-    () =>
-    {
-        it
-        (
-            'has expected properties',
-            () =>
-            {
-                assert.hasConsistentOwnProperties(wuw.doing);
-            },
-        );
-    },
-);
+('doing', () => it('has expected properties', () => assert.hasConsistentOwnProperties(wuw.doing)));
 
 describe
 (
-    'wuw.do',
+    'do',
     () =>
     {
         it
@@ -53,11 +49,9 @@ describe
         it
         (
             'works as expected',
-            async () =>
+            () =>
             {
                 const expectedError = SyntaxError('bar');
-                const _console_error = mock();
-                const wuw = await loadWuw({ _console_error });
                 wuw.do
                 (
                     () =>
@@ -143,7 +137,7 @@ describe
 
 describe
 (
-    'wuw.dont',
+    'dont',
     () =>
     {
         it
@@ -231,7 +225,7 @@ describe
 
 describe
 (
-    'wuw.doNothing',
+    'doNothing',
     () =>
     {
         it
@@ -244,7 +238,6 @@ describe
             },
         );
 
-        /*
         it
         (
             'works as expected',
@@ -284,6 +277,5 @@ describe
                 }
             },
         );
-        */
     },
 );
