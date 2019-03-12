@@ -105,28 +105,24 @@ describe
                         (
                             'throws for missing argument',
                             () =>
-                            {
-                                assert.throws
-                                (
-                                    () => do_(),
-                                    TypeError,
-                                    `Argument of ${callerFullName} is missing or undefined`,
-                                );
-                            },
+                            assert.throws
+                            (
+                                () => do_(),
+                                TypeError,
+                                `Argument of ${callerFullName} is missing or undefined`,
+                            ),
                         );
 
                         it
                         (
                             'throws for invalid argument',
                             () =>
-                            {
-                                assert.throws
-                                (
-                                    () => do_(Object.create(Function())),
-                                    TypeError,
-                                    `Argument of ${callerFullName} is not a function`,
-                                );
-                            },
+                            assert.throws
+                            (
+                                () => do_(Object.create(Function())),
+                                TypeError,
+                                `Argument of ${callerFullName} is not a function`,
+                            ),
                         );
                     },
                 );
@@ -193,28 +189,24 @@ describe
                         (
                             'throws for missing argument',
                             () =>
-                            {
-                                assert.throws
-                                (
-                                    () => dont(),
-                                    TypeError,
-                                    `Argument of ${callerFullName} is missing or undefined`,
-                                );
-                            },
+                            assert.throws
+                            (
+                                () => dont(),
+                                TypeError,
+                                `Argument of ${callerFullName} is missing or undefined`,
+                            ),
                         );
 
                         it
                         (
                             'throws for invalid argument',
                             () =>
-                            {
-                                assert.throws
-                                (
-                                    () => dont(Object.create(Function())),
-                                    TypeError,
-                                    `Argument of ${callerFullName} is not a function`,
-                                );
-                            },
+                            assert.throws
+                            (
+                                () => dont(Object.create(Function())),
+                                TypeError,
+                                `Argument of ${callerFullName} is not a function`,
+                            ),
                         );
                     },
                 );
@@ -277,5 +269,85 @@ describe
                 }
             },
         );
+    },
+);
+
+describe
+(
+    'isDoing',
+    () =>
+    {
+        it
+        (
+            'returns false',
+            () =>
+            {
+                const callback = Function();
+                const returnValue = wuw.isDoing(callback);
+                assert.isFalse(returnValue);
+            },
+        );
+
+        it
+        (
+            'returns true',
+            () =>
+            {
+                const callback = Function();
+                const returnValue = wuw.do(callback).isDoing(callback);
+                assert.isTrue(returnValue);
+            },
+        );
+
+        {
+            const data =
+            [
+                { isDoing: wuw.isDoing,         callerFullName: 'wuw.isDoing' },
+                { isDoing: wuw.doing.isDoing,   callerFullName: 'wuw.doing.isDoing' },
+            ];
+            for (const { isDoing, callerFullName } of data)
+            {
+                describe
+                (
+                    callerFullName,
+                    () =>
+                    {
+                        it
+                        (
+                            'has expected properties',
+                            () =>
+                            {
+                                assert.ownInclude(isDoing, { length: 1, name: 'isDoing' });
+                                assert.notProperty(isDoing, 'prototype');
+                            },
+                        );
+
+                        it
+                        (
+                            'throws for missing argument',
+                            () =>
+                            assert.throws
+                            (
+                                () => isDoing(),
+                                TypeError,
+                                `Argument of ${callerFullName} is missing or undefined`,
+                            ),
+                        );
+
+                        it
+                        (
+                            'throws for invalid argument',
+                            () =>
+                            assert.throws
+                            (
+                                () => isDoing(Object.create(Function())),
+                                TypeError,
+                                `Argument of ${callerFullName} is not a function`,
+                            ),
+                        );
+                    },
+                );
+            }
+        }
     },
 );

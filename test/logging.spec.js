@@ -215,7 +215,7 @@ describe
                 wuwTarget.innerHTML = '<BR>';
                 wuw.clearLog();
                 assert.lengthOf(wuw.log, 0);
-                assert.deepEqual([...wuw.log], []);
+                assert.isEmpty([...wuw.log]);
             },
         );
 
@@ -261,6 +261,48 @@ describe
 
 describe
 (
+    'loggingEnabled',
+    () =>
+    {
+        it('is initially set to true', () => assert.isTrue(wuw.loggingEnabled));
+
+        describe
+        (
+            'can be set to',
+            () =>
+            {
+                const testData =
+                [
+                    { value: false,     expected: false },
+                    { value: undefined, expected: false },
+                    { value: 0,         expected: false },
+                    { value: null,      expected: false },
+                    { value: '',        expected: false },
+                    { value: true,      expected: true },
+                    { value: Symbol(),  expected: true },
+                    { value: 42,        expected: true },
+                    { value: { },       expected: true },
+                    { value: 'foo',     expected: true },
+                ];
+                for (const { value, expected } of testData)
+                {
+                    it
+                    (
+                        String(value),
+                        () =>
+                        {
+                            wuw.loggingEnabled = value;
+                            assert.strictEqual(wuw.loggingEnabled, expected);
+                        },
+                    );
+                }
+            },
+        );
+    },
+);
+
+describe
+(
     'defaultMaxLogLength',
     () =>
     {
@@ -268,16 +310,14 @@ describe
         (
             'is read-only',
             () =>
-            {
-                assert.throws
-                (
-                    () =>
-                    {
-                        wuw.defaultMaxLogLength = 1;
-                    },
-                    TypeError,
-                );
-            },
+            assert.throws
+            (
+                () =>
+                {
+                    wuw.defaultMaxLogLength = 1;
+                },
+                TypeError,
+            ),
         );
 
         it
@@ -300,15 +340,12 @@ describe
         it
         (
             'is initially set to defaultMaxLogLength',
-            () =>
-            {
-                assert.strictEqual(wuw.maxLogLength, wuw.defaultMaxLogLength);
-            },
+            () => assert.strictEqual(wuw.maxLogLength, wuw.defaultMaxLogLength),
         );
 
         it
         (
-            'decreases the log length',
+            'decreases the log length to more than 0',
             () =>
             {
                 const wuwTarget = document.createElement('DATA');
@@ -321,6 +358,21 @@ describe
                 const snapshot = wuw.snapshot();
                 assert.propertyVal(snapshot[0], 'propertyKey', '2');
                 assert.propertyVal(snapshot[1], 'propertyKey', '3');
+            },
+        );
+
+        it
+        (
+            'decreases the log length to 0',
+            () =>
+            {
+                const wuwTarget = document.createElement('DATA');
+                wuw(wuwTarget);
+                for (let index = 0; index < 4; ++index)
+                    wuwTarget[index] = 'foo';
+                wuw.maxLogLength = 0;
+                assert.lengthOf(wuw.log, 0);
+                assert.isEmpty([...wuw.log]);
             },
         );
 
@@ -367,17 +419,15 @@ describe
                     (
                         String(value),
                         () =>
-                        {
-                            assert.throws
-                            (
-                                () =>
-                                {
-                                    wuw.maxLogLength = value;
-                                },
-                                RangeError,
-                                'Invalid log length',
-                            );
-                        },
+                        assert.throws
+                        (
+                            () =>
+                            {
+                                wuw.maxLogLength = value;
+                            },
+                            RangeError,
+                            'Invalid log length',
+                        ),
                     );
                 }
             },
@@ -406,11 +456,11 @@ describe
 
         it
         (
-            'does not log a record when maxLogLength is 0',
+            'does not log a record after logging is disabled',
             () =>
             {
                 const wuwTarget = document.createElement('DATA');
-                wuw.watch(wuwTarget).maxLogLength = 0;
+                wuw.watch(wuwTarget).loggingEnabled = false;
                 wuwTarget.foo = 'bar';
                 assert.lengthOf(wuw.log, 0);
             },
