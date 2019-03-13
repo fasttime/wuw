@@ -232,6 +232,23 @@ describe
             },
         );
 
+        it
+        (
+            'breaks logging',
+            () =>
+            {
+                const wuwTarget = document.createElement('DATA');
+                wuw(wuwTarget);
+                wuwTarget.foo = 'bar';
+                const iterator = wuw.log[Symbol.iterator]();
+                assert.propertyVal(iterator.next(), 'done', false);
+                wuw.clearLog();
+                wuwTarget.bar = 'foo';
+                assert.lengthOf(wuw.log, 1);
+                assert.propertyVal(iterator.next(), 'done', true);
+            },
+        );
+
         describe
         (
             'has expected properties',
@@ -345,7 +362,7 @@ describe
 
         it
         (
-            'decreases the log length to more than 0',
+            'decreases the log length',
             () =>
             {
                 const wuwTarget = document.createElement('DATA');
@@ -363,16 +380,19 @@ describe
 
         it
         (
-            'decreases the log length to 0',
+            'does not break logging when set to 0',
             () =>
             {
                 const wuwTarget = document.createElement('DATA');
                 wuw(wuwTarget);
-                for (let index = 0; index < 4; ++index)
-                    wuwTarget[index] = 'foo';
+                wuwTarget.foo = 'bar';
+                const iterator = wuw.log[Symbol.iterator]();
+                assert.propertyVal(iterator.next(), 'done', false);
                 wuw.maxLogLength = 0;
+                wuwTarget.bar = 'foo';
                 assert.lengthOf(wuw.log, 0);
-                assert.isEmpty([...wuw.log]);
+                assert.propertyVal(iterator.next(), 'done', false);
+                assert.propertyVal(iterator.next(), 'done', true);
             },
         );
 
