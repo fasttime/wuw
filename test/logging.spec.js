@@ -1,5 +1,5 @@
 /* eslint-env browser, mocha */
-/* global assert, wuw */
+/* global assert, itAll, wuw */
 
 'use strict';
 
@@ -165,7 +165,7 @@ describe
 
         describe
         (
-            'has expected properties',
+            'has expected properties as',
             () =>
             {
                 const data =
@@ -173,18 +173,17 @@ describe
                     { snapshot: wuw.snapshot,           callerFullName: 'wuw.snapshot' },
                     { snapshot: wuw.logging.snapshot,   callerFullName: 'wuw.logging.snapshot' },
                 ];
-                for (const { snapshot, callerFullName } of data)
-                {
-                    it
-                    (
-                        callerFullName,
-                        () =>
-                        {
-                            assert.ownInclude(snapshot, { length: 0, name: 'snapshot' });
-                            assert.notProperty(snapshot, 'prototype');
-                        },
-                    );
-                }
+
+                itAll
+                (
+                    data,
+                    ({ callerFullName }) => callerFullName,
+                    ({ snapshot }) =>
+                    {
+                        assert.ownInclude(snapshot, { length: 0, name: 'snapshot' });
+                        assert.notProperty(snapshot, 'prototype');
+                    },
+                );
             },
         );
     },
@@ -251,7 +250,7 @@ describe
 
         describe
         (
-            'has expected properties',
+            'has expected properties as',
             () =>
             {
                 const data =
@@ -259,18 +258,17 @@ describe
                     { clearLog: wuw.clearLog,           callerFullName: 'wuw.clearLog' },
                     { clearLog: wuw.logging.clearLog,   callerFullName: 'wuw.logging.clearLog' },
                 ];
-                for (const { clearLog, callerFullName } of data)
-                {
-                    it
-                    (
-                        callerFullName,
-                        () =>
-                        {
-                            assert.ownInclude(clearLog, { length: 0, name: 'clearLog' });
-                            assert.notProperty(clearLog, 'prototype');
-                        },
-                    );
-                }
+
+                itAll
+                (
+                    data,
+                    ({ callerFullName }) => callerFullName,
+                    ({ clearLog }) =>
+                    {
+                        assert.ownInclude(clearLog, { length: 0, name: 'clearLog' });
+                        assert.notProperty(clearLog, 'prototype');
+                    },
+                );
             },
         );
     },
@@ -301,18 +299,17 @@ describe
                     { value: { },       expected: true },
                     { value: 'foo',     expected: true },
                 ];
-                for (const { value, expected } of testData)
-                {
-                    it
-                    (
-                        String(value),
-                        () =>
-                        {
-                            wuw.loggingEnabled = value;
-                            assert.strictEqual(wuw.loggingEnabled, expected);
-                        },
-                    );
-                }
+
+                itAll
+                (
+                    testData,
+                    ({ value }) => String(value),
+                    ({ value, expected }) =>
+                    {
+                        wuw.loggingEnabled = value;
+                        assert.strictEqual(wuw.loggingEnabled, expected);
+                    },
+                );
             },
         );
     },
@@ -412,18 +409,17 @@ describe
                     { value: true,              expected: 1 },
                     { value: null,              expected: 0 },
                 ];
-                for (const { value, expected } of testData)
-                {
-                    it
-                    (
-                        String(value),
-                        () =>
-                        {
-                            wuw.maxLogLength = value;
-                            assert.strictEqual(wuw.maxLogLength, expected);
-                        },
-                    );
-                }
+
+                itAll
+                (
+                    testData,
+                    ({ value }) => String(value),
+                    ({ value, expected }) =>
+                    {
+                        wuw.maxLogLength = value;
+                        assert.strictEqual(wuw.maxLogLength, expected);
+                    },
+                );
             },
         );
 
@@ -433,23 +429,22 @@ describe
             () =>
             {
                 const testData = [-1, 2.5, NaN, '42f', { }, undefined];
-                for (const value of testData)
-                {
-                    it
+
+                itAll
+                (
+                    testData,
+                    value => String(value),
+                    () =>
+                    assert.throws
                     (
-                        String(value),
-                        () =>
-                        assert.throws
-                        (
-                            () =>
-                            {
-                                wuw.maxLogLength = value;
-                            },
-                            RangeError,
-                            'Invalid log length',
-                        ),
-                    );
-                }
+                        value =>
+                        {
+                            wuw.maxLogLength = value;
+                        },
+                        RangeError,
+                        'Invalid log length',
+                    ),
+                );
             },
         );
     },

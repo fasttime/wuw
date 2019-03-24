@@ -6,6 +6,7 @@ CHANGE_PROPERTY_STACK_TRACE_PATTERN,
 _console_error,
 assert,
 changeProperty,
+itAll,
 mock,
 wuw,
 */
@@ -84,49 +85,58 @@ describe
                 { do: wuw.do,       callerFullName: 'wuw.do' },
                 { do: wuw.doing.do, callerFullName: 'wuw.doing.do' },
             ];
-            for (const { do: do_, callerFullName } of data)
-            {
-                describe
+
+            describe
+            (
+                'has expected properties as',
+                () =>
+                itAll
                 (
-                    callerFullName,
-                    () =>
+                    data,
+                    ({ callerFullName }) => callerFullName,
+                    ({ do: do_ }) =>
                     {
-                        it
-                        (
-                            'has expected properties',
-                            () =>
-                            {
-                                assert.ownInclude(do_, { length: 1, name: 'do' });
-                                assert.notProperty(do_, 'prototype');
-                            },
-                        );
-
-                        it
-                        (
-                            'throws for missing argument',
-                            () =>
-                            assert.throws
-                            (
-                                () => do_(),
-                                TypeError,
-                                `Argument of ${callerFullName} is missing or undefined`,
-                            ),
-                        );
-
-                        it
-                        (
-                            'throws for invalid argument',
-                            () =>
-                            assert.throws
-                            (
-                                () => do_(Object.create(Function())),
-                                TypeError,
-                                `Argument of ${callerFullName} is not a function`,
-                            ),
-                        );
+                        assert.ownInclude(do_, { length: 1, name: 'do' });
+                        assert.notProperty(do_, 'prototype');
                     },
-                );
-            }
+                ),
+            );
+
+            describe
+            (
+                'throws for missing argument as',
+                () =>
+                itAll
+                (
+                    data,
+                    ({ callerFullName }) => callerFullName,
+                    ({ do: do_, callerFullName }) =>
+                    assert.throws
+                    (
+                        () => do_(),
+                        TypeError,
+                        `Argument of ${callerFullName} is missing or undefined`,
+                    ),
+                ),
+            );
+
+            describe
+            (
+                'throws for invalid argument as',
+                () =>
+                itAll
+                (
+                    data,
+                    ({ callerFullName }) => callerFullName,
+                    ({ do: do_, callerFullName }) =>
+                    assert.throws
+                    (
+                        () => do_(Object.create(Function())),
+                        TypeError,
+                        `Argument of ${callerFullName} is not a function`,
+                    ),
+                ),
+            );
         }
     },
 );
@@ -168,49 +178,58 @@ describe
                 { dont: wuw.dont,       callerFullName: 'wuw.dont' },
                 { dont: wuw.doing.dont, callerFullName: 'wuw.doing.dont' },
             ];
-            for (const { dont, callerFullName } of data)
-            {
-                describe
+
+            describe
+            (
+                'has expected properties as',
+                () =>
+                itAll
                 (
-                    callerFullName,
-                    () =>
+                    data,
+                    ({ callerFullName }) => callerFullName,
+                    ({ dont }) =>
                     {
-                        it
-                        (
-                            'has expected properties',
-                            () =>
-                            {
-                                assert.ownInclude(dont, { length: 1, name: 'dont' });
-                                assert.notProperty(dont, 'prototype');
-                            },
-                        );
-
-                        it
-                        (
-                            'throws for missing argument',
-                            () =>
-                            assert.throws
-                            (
-                                () => dont(),
-                                TypeError,
-                                `Argument of ${callerFullName} is missing or undefined`,
-                            ),
-                        );
-
-                        it
-                        (
-                            'throws for invalid argument',
-                            () =>
-                            assert.throws
-                            (
-                                () => dont(Object.create(Function())),
-                                TypeError,
-                                `Argument of ${callerFullName} is not a function`,
-                            ),
-                        );
+                        assert.ownInclude(dont, { length: 1, name: 'dont' });
+                        assert.notProperty(dont, 'prototype');
                     },
-                );
-            }
+                ),
+            );
+
+            describe
+            (
+                'throws for missing argument as',
+                () =>
+                itAll
+                (
+                    data,
+                    ({ callerFullName }) => callerFullName,
+                    ({ dont, callerFullName }) =>
+                    assert.throws
+                    (
+                        () => dont(),
+                        TypeError,
+                        `Argument of ${callerFullName} is missing or undefined`,
+                    ),
+                ),
+            );
+
+            describe
+            (
+                'throws for invalid argument as',
+                () =>
+                itAll
+                (
+                    data,
+                    ({ callerFullName }) => callerFullName,
+                    ({ dont, callerFullName }) =>
+                    assert.throws
+                    (
+                        () => dont(Object.create(Function())),
+                        TypeError,
+                        `Argument of ${callerFullName} is not a function`,
+                    ),
+                ),
+            );
         }
     },
 );
@@ -247,7 +266,7 @@ describe
 
         describe
         (
-            'has expected properties',
+            'has expected properties as',
             () =>
             {
                 const data =
@@ -255,18 +274,17 @@ describe
                     { doNothing: wuw.doNothing,         callerFullName: 'wuw.doNothing' },
                     { doNothing: wuw.doing.doNothing,   callerFullName: 'wuw.doing.doNothing' },
                 ];
-                for (const { doNothing, callerFullName } of data)
-                {
-                    it
-                    (
-                        callerFullName,
-                        () =>
-                        {
-                            assert.ownInclude(doNothing, { length: 0, name: 'doNothing' });
-                            assert.notProperty(doNothing, 'prototype');
-                        },
-                    );
-                }
+
+                itAll
+                (
+                    data,
+                    ({ callerFullName }) => callerFullName,
+                    ({ doNothing }) =>
+                    {
+                        assert.ownInclude(doNothing, { length: 0, name: 'doNothing' });
+                        assert.notProperty(doNothing, 'prototype');
+                    },
+                );
             },
         );
     },
@@ -305,49 +323,58 @@ describe
                 { isDoing: wuw.isDoing,         callerFullName: 'wuw.isDoing' },
                 { isDoing: wuw.doing.isDoing,   callerFullName: 'wuw.doing.isDoing' },
             ];
-            for (const { isDoing, callerFullName } of data)
-            {
-                describe
+
+            describe
+            (
+                'has expected properties as',
+                () =>
+                itAll
                 (
-                    callerFullName,
-                    () =>
+                    data,
+                    ({ callerFullName }) => callerFullName,
+                    ({ isDoing }) =>
                     {
-                        it
-                        (
-                            'has expected properties',
-                            () =>
-                            {
-                                assert.ownInclude(isDoing, { length: 1, name: 'isDoing' });
-                                assert.notProperty(isDoing, 'prototype');
-                            },
-                        );
-
-                        it
-                        (
-                            'throws for missing argument',
-                            () =>
-                            assert.throws
-                            (
-                                () => isDoing(),
-                                TypeError,
-                                `Argument of ${callerFullName} is missing or undefined`,
-                            ),
-                        );
-
-                        it
-                        (
-                            'throws for invalid argument',
-                            () =>
-                            assert.throws
-                            (
-                                () => isDoing(Object.create(Function())),
-                                TypeError,
-                                `Argument of ${callerFullName} is not a function`,
-                            ),
-                        );
+                        assert.ownInclude(isDoing, { length: 1, name: 'isDoing' });
+                        assert.notProperty(isDoing, 'prototype');
                     },
-                );
-            }
+                ),
+            );
+
+            describe
+            (
+                'throws for missing argument as',
+                () =>
+                itAll
+                (
+                    data,
+                    ({ callerFullName }) => callerFullName,
+                    ({ isDoing, callerFullName }) =>
+                    assert.throws
+                    (
+                        () => isDoing(),
+                        TypeError,
+                        `Argument of ${callerFullName} is missing or undefined`,
+                    ),
+                ),
+            );
+
+            describe
+            (
+                'throws for invalid argument as',
+                () =>
+                itAll
+                (
+                    data,
+                    ({ callerFullName }) => callerFullName,
+                    ({ isDoing, callerFullName }) =>
+                    assert.throws
+                    (
+                        () => isDoing(Object.create(Function())),
+                        TypeError,
+                        `Argument of ${callerFullName} is not a function`,
+                    ),
+                ),
+            );
         }
     },
 );

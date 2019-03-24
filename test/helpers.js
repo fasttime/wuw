@@ -1,4 +1,4 @@
-/* eslint-env browser */
+/* eslint-env browser, mocha */
 /* global assert, chai */
 
 'use strict';
@@ -138,7 +138,7 @@ function mock()
 const WUW_PATH = window.__karma__ ? '/base/lib/wuw.' : '../lib/wuw.';
 const WUW_SELECTORS = [`script[src^="${WUW_PATH}"]`, '#wuw-js'];
 
-function loadWuw({ _console_error, _console_warn } = { })
+function loadWuw({ _console_error, _console_log, _console_warn } = { })
 {
     const promise =
     new Promise
@@ -157,6 +157,8 @@ function loadWuw({ _console_error, _console_warn } = { })
                 Object.defineProperty(window, 'self', selfDesc);
                 if (_console_error !== undefined)
                     Object.defineProperty(console, 'error', _console_errorDesc);
+                if (_console_log !== undefined)
+                    Object.defineProperty(console, 'log', _console_logDesc);
                 if (_console_warn !== undefined)
                     Object.defineProperty(console, 'warn', _console_warnDesc);
                 resolve(wuw);
@@ -173,6 +175,13 @@ function loadWuw({ _console_error, _console_warn } = { })
                 Object.defineProperty
                 (console, 'error', { configurable: true, value: _console_error });
             }
+            let _console_logDesc;
+            if (_console_log !== undefined)
+            {
+                _console_logDesc = Object.getOwnPropertyDescriptor(console, 'log');
+                Object.defineProperty
+                (console, 'log', { configurable: true, value: _console_log });
+            }
             let _console_warnDesc;
             if (_console_warn !== undefined)
             {
@@ -183,4 +192,24 @@ function loadWuw({ _console_error, _console_warn } = { })
         },
     );
     return promise;
+}
+
+// itAll ///////////////////////////////////////////////////////////////////////////////////////////
+
+function itAll(dataSets, title, fn)
+{
+    if (typeof title !== 'function')
+    {
+        const titleStr = String(title);
+        title = (dataSet, index) => `${titleStr} #${index}`;
+    }
+    dataSets.forEach
+    (
+        (dataSet, index) =>
+        {
+            const dataSetObj = Object(dataSet);
+            const itCall = dataSetObj.skip ? it.skip : dataSetObj.only ? it.only : it;
+            itCall(title(dataSet, index), fn.bind(null, dataSet));
+        },
+    );
 }
