@@ -196,7 +196,9 @@ describe
                         );
                     },
                 );
-                assert.lengthOf(_console_log[CALLS], 2);
+                const calls =
+                _console_log[CALLS].filter(({ args }) => /^%cwuw record\b/.test(args[0]));
+                assert.lengthOf(calls, 2);
             },
         );
     },

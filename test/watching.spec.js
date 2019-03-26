@@ -579,8 +579,7 @@ describe
                 const wuwTarget = document.createElement('DATA');
                 wuw.watch(wuwTarget).unwatch(wuwTarget);
                 wuwTarget.textContent = 'foobar';
-                const snapshot = wuw.snapshot();
-                assert.isEmpty(snapshot);
+                assert.lengthOf(wuw.log, 0);
             },
         );
 
@@ -592,8 +591,7 @@ describe
                 const wuwTarget = document.createElement('DATA');
                 wuw.watch(wuwTarget).unwatchAll();
                 wuwTarget.textContent = 'foobar';
-                const snapshot = wuw.snapshot();
-                assert.isEmpty(snapshot);
+                assert.lengthOf(wuw.log, 0);
             },
         );
 
@@ -605,8 +603,7 @@ describe
                 const wuwTarget = document.createElement('DATA');
                 wuw.watch(wuwTarget).watch(wuwTarget);
                 wuwTarget.textContent = 'foobar';
-                const snapshot = wuw.snapshot();
-                assert.lengthOf(snapshot, 1);
+                assert.lengthOf(wuw.log, 1);
             },
         );
 
@@ -620,8 +617,7 @@ describe
                 const inheritor = Object.create(wuwTarget);
                 void inheritor.foo;
                 inheritor.foo = 'bar';
-                const snapshot = wuw.snapshot();
-                assert.isEmpty(snapshot);
+                assert.lengthOf(wuw.log, 0);
             },
         );
 
@@ -757,8 +753,7 @@ describe
                 const { style: spy } = wuwTarget;
                 wuw.unwatch(wuwTarget);
                 spy.display = 'none';
-                const snapshot = wuw.snapshot();
-                assert.isEmpty(snapshot);
+                assert.lengthOf(wuw.log, 0);
             },
         );
 
@@ -772,8 +767,7 @@ describe
                 const { style: spy } = wuwTarget;
                 wuw.unwatchAll();
                 spy.display = 'none';
-                const snapshot = wuw.snapshot();
-                assert.isEmpty(snapshot);
+                assert.lengthOf(wuw.log, 0);
             },
         );
 
@@ -788,8 +782,7 @@ describe
                 const actualStyle = wuwTarget.style;
                 expectedStyle.display = 'none';
                 assert.strictEqual(actualStyle, expectedStyle);
-                const snapshot = wuw.snapshot();
-                assert.lengthOf(snapshot, 1);
+                assert.lengthOf(wuw.log, 1);
             },
         );
 
@@ -801,8 +794,7 @@ describe
                 const wuwTarget = document.createElement('DATA');
                 wuw.watch(wuwTarget).unwatchAll();
                 wuwTarget.style.foo = 'bar';
-                const snapshot = wuw.snapshot();
-                assert.isEmpty(snapshot);
+                assert.lengthOf(wuw.log, 0);
             },
         );
 
@@ -816,8 +808,7 @@ describe
                 const inheritor = Object.create(wuwTarget.style);
                 void inheritor.foo;
                 inheritor.foo = 'bar';
-                const snapshot = wuw.snapshot();
-                assert.isEmpty(snapshot);
+                assert.lengthOf(wuw.log, 0);
             },
         );
 
@@ -833,8 +824,7 @@ describe
                 wuw.watch(wuwTarget);
                 const actualStyle = wuwTarget.style;
                 assert.strictEqual(actualStyle, expectedStyle);
-                const snapshot = wuw.snapshot();
-                assert.isEmpty(snapshot);
+                assert.lengthOf(wuw.log, 0);
             },
         );
     },
