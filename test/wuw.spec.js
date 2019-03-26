@@ -1,3 +1,5 @@
+/// <reference types='../lib/wuw'/>
+
 /* eslint-env browser, mocha */
 /* global assert, mock, loadWuw, wuw */
 
@@ -7,10 +9,23 @@ beforeEach
 (
     async () =>
     {
-        const _console_error = mock();
-        const _console_log = mock();
-        const _console_warn = mock();
-        const wuw = await loadWuw({ _console_error, _console_log, _console_warn });
+        const _console_error            = mock();
+        const _console_groupCollapsed   = mock();
+        const _console_groupEnd         = mock();
+        const _console_log              = mock();
+        const _console_warn             = mock();
+        const mocks =
+        {
+            console:
+            {
+                error:          _console_error,
+                groupCollapsed: _console_groupCollapsed,
+                groupEnd:       _console_groupEnd,
+                log:            _console_log,
+                warn:           _console_warn,
+            },
+        };
+        const wuw = await loadWuw(mocks);
         Object.defineProperties
         (
             self,

@@ -1,3 +1,5 @@
+/// <reference types='../lib/wuw'/>
+
 /* eslint-env browser, mocha */
 /* global CALLS, _console_log, assert, itAll, wuw */
 

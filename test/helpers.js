@@ -138,7 +138,7 @@ function mock()
 const WUW_PATH = window.__karma__ ? '/base/lib/wuw.' : '../lib/wuw.';
 const WUW_SELECTORS = [`script[src^="${WUW_PATH}"]`, '#wuw-js'];
 
-function loadWuw({ _console_error, _console_log, _console_warn } = { })
+function loadWuw(mocks = { })
 {
     const promise =
     new Promise
@@ -155,40 +155,31 @@ function loadWuw({ _console_error, _console_log, _console_warn } = { })
             {
                 const { wuw } = selfMock;
                 Object.defineProperty(window, 'self', selfDesc);
-                if (_console_error !== undefined)
-                    Object.defineProperty(console, 'error', _console_errorDesc);
-                if (_console_log !== undefined)
-                    Object.defineProperty(console, 'log', _console_logDesc);
-                if (_console_warn !== undefined)
-                    Object.defineProperty(console, 'warn', _console_warnDesc);
+                for (const [objKey, ownDescs] of Object.entries(backups))
+                {
+                    for (const [propKey, ownDesc] of Object.entries(ownDescs))
+                        Object.defineProperty(self[objKey], propKey, ownDesc);
+                }
                 resolve(wuw);
             };
             document.head.appendChild(script);
+            const backups = { };
+            for (const [objKey, mock] of Object.entries(mocks))
+            {
+                const backup = backups[objKey] = { };
+                const obj = self[objKey];
+                for (const [propKey, propValue] of Object.entries(mock))
+                {
+                    backup[propKey] =
+                    Object.getOwnPropertyDescriptor(obj, propKey);
+                    const ownDesc = { configurable: true, value: propValue };
+                    Object.defineProperty(obj, propKey, ownDesc);
+                }
+            }
             const selfMock = { };
             const selfDesc = Object.getOwnPropertyDescriptor(window, 'self');
             Object.defineProperty
             (window, 'self', { configurable: true, value: selfMock });
-            let _console_errorDesc;
-            if (_console_error !== undefined)
-            {
-                _console_errorDesc = Object.getOwnPropertyDescriptor(console, 'error');
-                Object.defineProperty
-                (console, 'error', { configurable: true, value: _console_error });
-            }
-            let _console_logDesc;
-            if (_console_log !== undefined)
-            {
-                _console_logDesc = Object.getOwnPropertyDescriptor(console, 'log');
-                Object.defineProperty
-                (console, 'log', { configurable: true, value: _console_log });
-            }
-            let _console_warnDesc;
-            if (_console_warn !== undefined)
-            {
-                _console_warnDesc = Object.getOwnPropertyDescriptor(console, 'warn');
-                Object.defineProperty
-                (console, 'warn', { configurable: true, value: _console_warn });
-            }
         },
     );
     return promise;

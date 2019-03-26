@@ -28,12 +28,13 @@ task
             {
                 src: 'lib/wuw.js',
                 envs: 'browser',
-                globals: ['global', 'require', 'setImmediate'],
+                globals: ['setImmediate'],
                 parserOptions: { ecmaVersion: 7 },
             },
             {
                 src: ['*.js', 'test/**/*.js'],
                 parserOptions: { ecmaVersion: 8 },
+                rules: { 'spaced-comment': ['error', 'always', { markers: ['/'] }] },
             },
         );
         return stream;
