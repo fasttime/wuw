@@ -10,37 +10,37 @@ interface WuwRecord
     readonly endTime: number;
     readonly success?: boolean;
     readonly error?: any;
-    readonly splitStackTrace(): string[];
+    splitStackTrace(): string[];
 }
 
 type WuwRecordCallback = (record: WuwRecord) => void;
 
 type WuwWatching =
 {
-    readonly watch(wuwTarget: Node): wuw;
-    readonly unwatch(wuwTarget: Node): wuw;
-    readonly unwatchAll(): wuw;
+    watch(wuwTarget: Node): wuw;
+    unwatch(wuwTarget: Node): wuw;
+    unwatchAll(): wuw;
     readonly defaultRemarkUndeletableProperties: RemarkUndeletablePropertiesFunction;
     remarkUndeletableProperties: RemarkUndeletablePropertiesFunction;
 }
 
 type WuwDoing =
 {
-    readonly do(callback: WuwRecordCallback): wuw;
-    readonly dont(callback: WuwRecordCallback): wuw;
-    readonly doNothing(): wuw;
-    readonly isDoing(callback: WuwRecordCallback): boolean;
+    do(callback: WuwRecordCallback): wuw;
+    dont(callback: WuwRecordCallback): wuw;
+    doNothing(): wuw;
+    isDoing(callback: WuwRecordCallback): boolean;
 }
 
 type WuwLogging =
 {
     readonly log:
     {
-        readonly [Symbol.iterator](): IterableIterator<WuwRecord>;
+        [Symbol.iterator](): IterableIterator<WuwRecord>;
         readonly length: number;
     };
-    readonly snapshot(): WuwRecord[];
-    readonly clearLog(): wuw;
+    snapshot(): WuwRecord[];
+    clearLog(): wuw;
     loggingEnabled: boolean;
     readonly defaultMaxLogLength: number;
     maxLogLength: number;
@@ -48,8 +48,8 @@ type WuwLogging =
 
 type WuwLiveReporting =
 {
-    readonly live(): wuw;
-    readonly unlive(): wuw;
+    live(): wuw;
+    unlive(): wuw;
     liveReportingEnabled: boolean;
 }
 
@@ -60,7 +60,7 @@ interface wuw extends WuwWatching, WuwDoing, WuwLogging, WuwLiveReporting
     readonly doing: WuwDoing;
     readonly logging: WuwLogging;
     readonly liveReporting: WuwLiveReporting;
-    readonly reset(): wuw;
+    reset(): wuw;
 }
 
 declare const wuw: wuw;
