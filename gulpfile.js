@@ -56,14 +56,12 @@ task
 
 task
 (
-    'uglify',
+    'minify',
     () =>
     {
-        const composer = require('gulp-uglify/composer');
         const rename = require('gulp-rename');
-        const uglifyjs = require('uglify-es');
+        const terser = require('gulp-terser');
 
-        const minify = composer(uglifyjs, console);
         const minifyOpts =
         {
             compress: { hoist_funs: true, passes: 3 },
@@ -71,11 +69,11 @@ task
         };
         const stream =
         src('lib/wuw.js')
-        .pipe(minify(minifyOpts))
+        .pipe(terser(minifyOpts))
         .pipe(rename({ extname: '.min.js' }))
         .pipe(dest('lib'));
         return stream;
     },
 );
 
-task('default', series(parallel('clean', 'lint'), 'test', 'uglify'));
+task('default', series(parallel('clean', 'lint'), 'test', 'minify'));

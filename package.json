@@ -29,17 +29,16 @@
     "chai": "~4.2.0",
     "del": "~4.0.0",
     "gulp": "~4.0.0",
-    "gulp-fasttime-lint": "~0.8.1",
+    "gulp-fasttime-lint": "~0.9.1",
     "gulp-rename": "~1.4.0",
-    "gulp-uglify": "~3.0.2",
-    "karma": "~4.0.1",
+    "gulp-terser": "~1.1.7",
+    "karma": "~4.1.0",
     "karma-chai": "~0.1.0",
     "karma-chrome-launcher": "~2.2.0",
     "karma-coverage": "~1.1.2",
     "karma-mocha": "~1.3.0",
-    "mocha": "~6.0.2",
-    "mocha-bar": "~0.0.3",
-    "uglify-es": "~3.3.9"
+    "mocha": "~6.1.4",
+    "mocha-bar": "~0.0.3"
   },
   "engines": {
     "node": ">=8.5.0"
