@@ -32,6 +32,10 @@ task
                 parserOptions: { ecmaVersion: 7 },
             },
             {
+                src: 'lib/wuw.d.ts',
+                parserOptions: { ecmaVersion: 7, project: 'tsconfig.json' },
+            },
+            {
                 src: ['*.js', 'test/**/*.js'],
                 parserOptions: { ecmaVersion: 8 },
                 rules: { 'spaced-comment': ['error', 'always', { markers: ['/'] }] },

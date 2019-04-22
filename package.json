@@ -10,9 +10,10 @@
   "bugs": "https://github.com/fasttime/wuw/issues",
   "license": "ISC",
   "files": [
-    "lib/*.js"
+    "lib/*.{js,ts}"
   ],
   "main": "lib/wuw.js",
+  "types": "lib/wuw.d.ts",
   "browser": "lib/wuw.js",
   "directories": {
     "lib": "lib"
@@ -27,9 +28,9 @@
   },
   "devDependencies": {
     "chai": "~4.2.0",
-    "del": "~4.0.0",
-    "gulp": "~4.0.0",
-    "gulp-fasttime-lint": "~0.9.1",
+    "del": "~4.1.0",
+    "gulp": "~4.0.1",
+    "gulp-fasttime-lint": "~0.9.2",
     "gulp-rename": "~1.4.0",
     "gulp-terser": "~1.1.7",
     "karma": "~4.1.0",
