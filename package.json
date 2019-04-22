@@ -1,6 +1,6 @@
 {
   "name": "wuw",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "A JavaScript library to debug operations on DOM object",
   "keywords": [
     "debug",
