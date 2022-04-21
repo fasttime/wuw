@@ -55,12 +55,15 @@ export interface WuwLiveReporting
 
 export interface wuw extends WuwWatching, WuwDoing, WuwLogging, WuwLiveReporting
 {
+    (wuwTarget: Node): wuw;
     readonly watching: WuwWatching;
     readonly doing: WuwDoing;
     readonly logging: WuwLogging;
     readonly liveReporting: WuwLiveReporting;
-    (wuwTarget: Node): wuw;
     reset(): wuw;
 }
 
-declare global { const wuw: wuw; }
+declare global
+{
+    const wuw: wuw;
+}

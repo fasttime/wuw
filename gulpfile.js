@@ -18,17 +18,16 @@ task
 task
 (
     'lint',
-    () =>
+    async () =>
     {
-        const lint = require('gulp-fasttime-lint');
+        const { lint } = require('@fasttime/lint');
 
-        const stream =
-        lint
+        await lint
         (
             {
                 src: 'lib/wuw.js',
                 envs: 'browser',
-                globals: ['setImmediate'],
+                globals: { setImmediate: false },
                 parserOptions: { ecmaVersion: 7 },
             },
             {
@@ -41,20 +40,25 @@ task
                 rules: { 'spaced-comment': ['error', 'always', { markers: ['/'] }] },
             },
         );
-        return stream;
     },
 );
 
 task
 (
     'test',
-    done =>
+    async () =>
     {
-        const { Server } = require('karma');
-        const path = require('path');
+        const { config: { parseConfig }, Server }   = require('karma');
+        const path                                  = require('path');
 
-        new Server({ configFile: path.join(__dirname, '/karma.conf.js'), singleRun: true }, done)
-        .start();
+        const config =
+        await parseConfig
+        (
+            path.join(__dirname, '/karma.conf.js'),
+            { singleRun: true },
+            { promiseConfig: true, throwErrors: true },
+        );
+        await new Server(config).start();
     },
 );
 
